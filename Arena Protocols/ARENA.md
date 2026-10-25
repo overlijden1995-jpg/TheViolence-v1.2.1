@@ -55,28 +55,36 @@ I16 The simulation is deterministic. Never use bare randi() in gameplay logic �
 
 ## L2 · Task routing
 
-The Violence is a single-developer Godot game. Routing is by **capability** and **current milestone need**, not by a 55-model matrix. When choosing work:
+The Violence uses the **per-model routing system** documented in `ARENA_MODEL_ROUTER.md`.
+That document grades each of 55 measured models across 16 job classes
+(Optimal / Competent / Adequate / Inadequate) and routes them against the 20-stage
+roadmap increment model (§3 of that document).
+
+The stage-to-milestone mapping (§0.5 of the router) connects the 20 generic stages
+to The Violence's five milestones in `ROADMAP.md`:
+
+| Router stages | Milestone | Primary classes |
+|---|---|---|
+| 10 (0.50) | **Current** — vertical slice gate | QA, BUGREP, DOCS, STRUCT |
+| 11 (0.55) | M1 Foundation | TOOL, ARCH, ASSETS |
+| 12 (0.60) | M2 Production | ASSETS, NARR, SYS, STRUCT |
+| 13–14 (0.65–0.70) | M3 Experience | NARR, DOCS, UIUX, AUDIO |
+| 15–16 (0.75–0.80) | M4 Depth | DEBUG, PERF, MIGR, SYS |
+| 17–18 (0.85–0.90) | M5 Release (early) | FEEL, UIUX, QA, BUGREP |
+| 19–20 (0.95–1.00) | M5 Release (late) | MIGR, DOCS, TOOL, QA, STRUCT |
+
+When choosing work:
 
 ```
-R1  What does the ROADMAP.md current milestone need most?
-R2  Am I capable at this class of work? (code systems, debugging, asset creation,
-    narrative text, testing, performance, UI/UX, documentation)
-R3  High-risk work (save format, simulation core, structural changes) requires
-    demonstrated competence and V3+ verification.
-R4  If nothing in the milestone matches my capability: FALLBACK = playtest the current
-    build (tools/run_tests.sh --quick), write bug reports, file observations.
-R5  One packet per session. Exceptions: two same-class ≤15 min tasks, declared up front.
-R6  The task ladder (L8) ranks priority. Rung-1 blockers always come first.
+R1  Read ROADMAP.md → identify the current milestone → find open tasks
+R2  Resolve your model identity against the 55-model roster (§8 of router)
+R3  Check your grade row for the task's class
+R4  High-risk work (save format, simulation core, structural changes) requires
+    Optimal grade and V4+ verification
+R5  If no qualifying task exists: FALLBACK = playtest + bug report (always productive)
+R6  One packet per session. Exceptions: two same-class ≤15 min tasks, declared up front
+R7  Review across model families when possible (§6 rule 9 of router)
 ```
-
-**Capability self-assessment** (declare at session start):
-- Systems code (campaign, sim, city, nav): high / medium / low
-- Debugging (multi-file root cause, test failures): high / medium / low
-- Asset creation (sprites, audio, video): high / medium / low
-- Narrative/UI text (briefings, Ledger headlines, manual): high / medium / low
-- Testing (harness authoring, gate design): high / medium / low
-- Performance (profiling, optimization): high / medium / low
-- Documentation (README, changelog, protocols): high / medium / low
 
 ## L3 · Project state (as of v0.50)
 
@@ -317,10 +325,10 @@ Stop and escalate when: the change alters design direction · credentials needed
 
 | File | Load when |
 |---|---|
-| `ARENA_MODEL_ROUTER.md` | you need per-model routing decisions or worked examples |
-| `ARENA_CREATIVE_WRITING.md` | the task involves narrative text, briefings, or Ledger copy |
-| `ARENA_README.md` | legacy prose: full tier charters, appendices, templates |
-| `ROADMAP.md` | current milestone and path to 1.0 |
+| `ARENA_MODEL_ROUTER.md` | you need the 55-model dispatch table, per-class grades, the routing flowchart, worked examples, or stage-to-milestone mapping |
+| `ARENA_CREATIVE_WRITING.md` | the task involves narrative text, briefings, Ledger copy, or political content routing |
+| `ARENA_README.md` | legacy prose: full tier charters, packet templates, playtest protocol in detail |
+| `ROADMAP.md` | the ~100 specific tasks from v0.50 to v1.0, organized by milestone with file-level scope |
 
 ## L16 · Changelog
 
