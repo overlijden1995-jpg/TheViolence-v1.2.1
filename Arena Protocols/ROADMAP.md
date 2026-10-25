@@ -45,6 +45,12 @@ Version 1.0 is a build that:
 
 ### Test Infrastructure
 
+> **Status 2026-10-25:** 1.01, 1.02, 1.03, 1.06 and 1.07 are done — the harnesses' own
+> pass/fail result is now their exit code. Verification reached **V1** (static audit
+> clean; no engine in the session environment, so the new exit paths are unproven until
+> a binary runs them). Session record: `ARENA_STATE.md` §4. The remaining 1.04, 1.05 and
+> 1.08–1.18 are the same shape, one file each.
+
 | ID | Task | Class | Scope | Acceptance |
 |---|---|---|---|---|
 | 1.01 | Give `tests/_check.gd` a proper exit code | TOOL | `tests/_check.gd` | Exits 1 when any script fails to load; currently prints FAILED and exits 0 |
@@ -90,6 +96,12 @@ Version 1.0 is a build that:
 | 1.31 | Verify `determinism_test --verbose` passes all cases (existing + new) | SYS | `tests/determinism_test.gd` | 35+ cases, 0 unexpected changes |
 
 ### CI & Infrastructure
+
+> **Blocked 2026-10-25:** 1.32 cannot be done from an agent session. `tools/ci/ci.yml`
+> is valid and pins two engine releases that exist, but pushing it to
+> `.github/workflows/ci.yml` is rejected — *"refusing to allow a GitHub App to create or
+> update workflow ... without `workflows` permission"*. It needs a GitHub reconnect with
+> that permission, or the file created in the GitHub UI. 1.33 stays blocked behind it.
 
 | ID | Task | Class | Scope | Acceptance |
 |---|---|---|---|---|

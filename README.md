@@ -85,7 +85,7 @@ tools/run_tests.sh --soak      # + the asserted balance matrix (long)
 GODOT=/path/to/godot tools/run_tests.sh --full
 ```
 
-The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes `build/test-logs/<suite>.log`. The same tiers run in CI (`tools/ci/ci.yml` — move it to `.github/workflows/ci.yml` to activate it) on 4.7.2 and on 4.4.1.
+The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes `build/test-logs/<suite>.log`. The same tiers are defined for CI in `tools/ci/ci.yml`, which runs the static audit and the quick tier on 4.7.2 and on 4.4.1 once it is moved to `.github/workflows/ci.yml`. It is not active yet: this repository's GitHub App is refused permission to push anything under `.github/workflows/`, so the move has to be made by hand or by reconnecting GitHub with `workflows` scope — see `ARENA_STATE.md` §3.
 
 Run individual suites when debugging:
 
@@ -134,14 +134,14 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 | Equipment (34 items, measured gates) | Complete |
 | Animated figures | Complete — rigged paper-silhouette system |
 | Opening cutscenes (4 films) | Complete |
-| Short interstitials (14 rendered) | 4 of 14 wired to gameplay |
-| Test harnesses (36 files) | 18 cannot exit non-zero (known gap) |
+| Short interstitials (14 rendered) | 5 of 14 wired to gameplay |
+| Test harnesses (36 files) | 15 cannot exit non-zero (5 given exit codes 2026-10-25; 2 of the 15 are tools, not gates) |
 | Windows build | Exists (88 MiB), unsigned, not tested on real hardware |
 | Music / score | **Missing** |
 | Accessibility | **Minimal** (red-ink/gore toggles only) |
 | Localization | **Not started** |
 | Balance matrix (11 cells) | **Empty** — measured bands not yet filled in |
-| CI pipeline | **Not activated** |
+| CI pipeline | **Not activated** — the workflow is written but this repo's GitHub App cannot push `.github/workflows/` (see `ARENA_STATE.md` §3) |
 | License | **None declared** |
 
 See `Arena Protocols/ROADMAP.md` for the milestone plan from 0.50 to 1.0, and `RELEASE_READINESS.md` for the full technical assessment.

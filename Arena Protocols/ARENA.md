@@ -95,7 +95,7 @@ The Violence is a **vertical slice prototype** — not a release candidate. The 
 | Core simulation | Strong — 34,458 lines GDScript, deterministic | `scripts/sim/`, 35-case fixture |
 | Campaign loop | Strong — 40 weeks, elections, politics | `scripts/campaign/` |
 | 12 tactical maps | Complete | `scripts/maps/registry.gd` |
-| Test harnesses | 36 files, 18 cannot exit non-zero | `tests/` |
+| Test harnesses | 36 files, 15 cannot exit non-zero (5 fixed 2026-10-25) | `tests/` |
 | Animated figures | Complete | `scripts/view/rig.gd` |
 | Equipment database | 34 items, measured gates | `scripts/data/equipment.gd` |
 | AI brains (4-layer) | Complete, gated | `scripts/sim/brain.gd` |
@@ -107,7 +107,7 @@ The Violence is a **vertical slice prototype** — not a release candidate. The 
 | Localization | **Not started** — inline English strings | ~1,500 literals |
 | Performance budgets | **Not asserted** | `tests/perf.gd` prints only |
 | Balance matrix | **11 cells empty** | `tests/balance_matrix_test.gd` |
-| CI pipeline | **Not activated** | `tools/ci/ci.yml` needs move |
+| CI pipeline | **Not activated** — the move is rejected without `workflows` permission | `tools/ci/ci.yml`, `ARENA_STATE.md` §3 |
 | License | **None declared** | no LICENSE file |
 
 ## L4 · The game's architecture (know before editing)
@@ -121,7 +121,7 @@ scripts/
 │   ├── front.gd         — title screen, manual (8 pages), credits, settings
 │   ├── city_ui.gd       — endless battle UI
 │   ├── cutscene.gd      — opening film player
-│   ├── shorts.gd        — interstitial short player (4 of 14 wired)
+│   ├── shorts.gd        — interstitial short player (5 of 14 wired)
 │   ├── settings.gd      — persistent settings (fullscreen, volume, toggles)
 │   └── ui.gd            — shared UI utilities
 ├── campaign/
