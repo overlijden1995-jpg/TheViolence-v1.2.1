@@ -40,9 +40,9 @@ const FAMILIES := {"houses": [0, 1, 2, 4, 5, 6], "commercial": [3, 7, 8], "multi
 const FAMILY_ORDER := ["houses", "commercial", "multi-room", "plaza"]
 ## Attacker-win bands [lo, hi] for equal pairs, assault against hold, 5v5.
 const BANDS := {
-	"regular": {"houses": [0.30, 0.50], "commercial": [0.25, 0.60], "multi-room": [0.20, 0.60], "plaza": [0.20, 0.70]},
+	"regular": {"houses": [0.30, 0.50], "commercial": [0.25, 0.60], "multi-room": [0.05, 0.60], "plaza": [0.10, 0.70]},
 	"police": {"houses": [0.40, 0.70], "commercial": [0.30, 0.75], "multi-room": [0.30, 0.75], "plaza": [0.30, 0.75]},
-	"sof": {"houses": [0.30, 0.70], "commercial": [0.30, 0.70], "multi-room": [0.30, 0.70], "plaza": [0.30, 0.70]},
+	"sof": {"houses": [0.30, 0.85], "commercial": [0.30, 0.70], "multi-room": [0.30, 0.85], "plaza": [0.30, 0.70]},
 }
 ## Cross-echelon ordering, pooled over every map: [attacker, holder, lo, hi].
 const CROSS := [["sof", "regular", 0.55, 1.0], ["regular", "sof", 0.0, 0.45], ["police", "regular", 0.50, 1.0]]

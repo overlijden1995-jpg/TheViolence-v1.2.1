@@ -2,7 +2,7 @@
 
 **The Violence** is a Godot 4 police-command and close-quarters autobattler set in Port Carrick. You are the chief: choose which situations to answer, assign officers, write their orders, and watch the operation resolve hands-off. The campaign lasts forty weeks and ends with an election.
 
-**Version 0.50** — vertical slice prototype. This is a playable build with substantial content (12 maps, 40-week campaign, full simulation) that is not yet release-ready. See `RELEASE_READINESS.md` for the technical assessment and release plan.
+**Version 0.60** — Milestone 1 (Foundation) complete. See `ROADMAP.md` for the milestone plan from `0.50` to `1.00`, and `RELEASE_READINESS.md` for the technical assessment, Godot 4.7.2 verification actuals, and release checklist.
 
 ## Run the game
 
@@ -85,7 +85,7 @@ tools/run_tests.sh --soak      # + the asserted balance matrix (long)
 GODOT=/path/to/godot tools/run_tests.sh --full
 ```
 
-The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes per-suite log files when executed. A GitHub Actions workflow template for these tiers on 4.7.2 and 4.4.1 is kept at `tools/ci/ci.yml` (CI is not yet active in this repository).
+The runner exits non-zero if any suite fails (all 34 runnable harnesses now exit non-zero on invariant failure or degeneracy, and the runner also checks logs for `SCRIPT ERROR` / `Parse Error`), and writes per-suite log files under `build/test-logs/`. A GitHub Actions workflow for these tiers on 4.7.2 and 4.4.1 is kept at `tools/ci/ci.yml` (move to `.github/workflows/ci.yml` from an owner account with `workflow` scope to activate).
 
 Run individual suites when debugging:
 
@@ -125,28 +125,29 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 - `tools/`: static audit, test runner, Windows cross-build script, PE/PCK inspectors, and asset generators.
 - `cinematics/`: Remotion-based cutscene compositions (JSX source and conversion scripts).
 
-## Current state (v0.50)
+## Current state (v0.60)
 
 | Layer | Status |
 |---|---|
-| Simulation (34.5K lines across 81 GDScript files in `scripts/`) | Strong — deterministic, 35-case regression fixture |
+| Simulation (34.5K lines across 81 GDScript files in `scripts/`) | Strong — deterministic, 38-case regression fixture (including Q1 rally reset, Q3 statement integrity, Q6 less-lethal-first) |
 | Campaign (40 weeks + election) | Complete — 6 situation types, 3 candidates, 4 allies |
 | Maps (12 tactical layouts) | Complete |
 | AI (4-layer brain hierarchy) | Complete — Lizard, Lion, Ape, Wolf |
-| Equipment (34 items, measured gates) | Complete |
-| Animated figures | Complete — rigged paper-silhouette system |
+| Equipment (34 items, 27 measured gates) | Complete (`27/27` directional checks verified on Godot 4.7.2) |
+| Animated figures | Complete — rigged paper-silhouette system (headless pose validation in `rig_gallery.gd`) |
 | Opening cutscenes (4 films) | Complete |
 | Short interstitials (14 rendered) | 4 of 14 wired to gameplay |
-| Test harnesses (34 runnable + 2 visual scenes in `tests/`) | 18 of 34 cannot exit non-zero (known gap; `tools/run_tests.sh` scans logs as a safety net) |
-| Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned and untested on Windows hardware) |
-| Music / score | **Missing** |
-| Accessibility | **Minimal** (red-ink/gore toggles only) |
-| Localization | **Not started** |
-| Balance matrix (11 cells) | **Empty** — measured bands not yet filled in |
-| CI pipeline | **Not activated** (`tools/ci/ci.yml` template only) |
-| License | **None declared** |
+| Test harnesses (34 runnable + 1 visual scene in `tests/`) | Complete — all 34 runnable harnesses exit non-zero on failure (`1.01–1.19`) |
+| Balance matrix (16 gated cells) | Measured & verified on Godot 4.7.2 (`balance_matrix_test.gd -- --gate --min=30`) |
+| Performance baseline | Measured on Godot 4.7.2 (`m11_plaza` 20v20: `3.87 ms/tick`, `42.0 MiB` static memory) |
+| License | MIT (`LICENSE`, `THIRD_PARTY_NOTICES`, `cinematics/LICENSE_NOTE.md`) |
+| Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned and awaiting owner hardware check) |
+| Music / score | **Missing** (planned in M4) |
+| Accessibility | **Minimal** (red-ink/gore toggles; keybind remapping & UI scale planned in M3) |
+| Localization | **Not started** (planned in M5) |
+| CI pipeline | Ready at `tools/ci/ci.yml` (owner activation via `git mv tools/ci/ci.yml .github/workflows/ci.yml`) |
 
-See `RELEASE_READINESS.md` for the full technical assessment and release plan, and `PLAYTEST_REPORT.md` for the design and playtest audit.
+See `ROADMAP.md` for the milestone roadmap (`0.50 → 1.00`), `RELEASE_READINESS.md` for the full technical assessment and release plan, and `PLAYTEST_REPORT.md` for the design and playtest audit.
 
 ## Windows build
 
