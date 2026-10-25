@@ -24,6 +24,8 @@ const Nav = preload("res://scripts/sim/nav.gd")
 const World = preload("res://scripts/sim/world.gd")
 const Teams = preload("res://tests/teams.gd")
 const Campaign = preload("res://scripts/campaign/campaign.gd")
+const Department = preload("res://scripts/campaign/department.gd")
+const Orders = preload("res://scripts/campaign/orders.gd")
 const Autoplan = preload("res://scripts/campaign/autoplan.gd")
 const Operation = preload("res://scripts/campaign/operation.gd")
 
@@ -116,6 +118,133 @@ func _operations(cseed: int) -> Dictionary:
 	return out
 
 
+func _officer_ids(dept, n: int) -> Array:
+	var recs: Array = dept.officers.duplicate()
+	recs.sort_custom(func(a, b): return Orders.rank_i(a) > Orders.rank_i(b) or (Orders.rank_i(a) == Orders.rank_i(b) and int(a["xp"]) > int(b["xp"])))
+	var out: Array = []
+	for r in recs.slice(0, n):
+		out.append(r["id"])
+	return out
+
+
+## Q1 (1.28): An element holding a quiet, cleared room past RALLY_QUIET (12 s)
+## calms at RALLY_DECAY (0.25/s) down to its trauma/morale floor (stress0).
+func _q1_rally_reset(seed_v: int) -> Dictionary:
+	var dept = Department.new()
+	dept.found(seed_v)
+	var lv = Maps.get_level(4)
+	var nv = _nav(4, lv)
+	var sit := {"id": "Q1", "type": "gang", "seed": seed_v, "named": "", "visibility": 2, "intel": [],
+		"occupants": [{"role": "suspect", "ech": "untrained", "room": "BED2", "arms": "pistol", "alert": 0, "flight": 0.0}]}
+	var od: Dictionary = Orders.empty_orders()
+	od["objs"] = [{"kind": "clear", "rooms": []}]
+	od["consolidate"] = "HALL"
+	var plan := {"squads": [{"members": _officer_ids(dept, 4), "orders": od, "stage": 0}]}
+	var b: Dictionary = Operation.build_planned(sit, plan, dept, lv, nv)
+	b["opts"]["time_limit"] = 240.0
+	var w = World.new()
+	w.keep_events = false
+	w.setup(lv, nv, b["cfgs"], b["postures"], b["seed"], b["alerts"], b["opts"])
+	var primed := false
+	var rally_steps := 0
+	var guard := 0
+	while not w.over and guard < 200000:
+		if not primed and w.teams[0]["cleared"].has("HALL"):
+			primed = true
+			for o in w.ops:
+				if o.team == 0 and o.alive():
+					o.ech["stress0"] = 0.05
+					o.stress = 0.85
+					o.last_stress_t = w.t - World.RALLY_QUIET - 0.5
+					o.last_enemy_seen_t = w.t - World.RALLY_QUIET - 0.5
+		w.step()
+		if primed and rally_steps < 60:
+			rally_steps += 1
+		w.events.clear()
+		guard += 1
+	var base := digest(w)
+	var out := {"t": snappedf(w.t, 0.01), "winner": w.winner, "shots": w.stat["shots"], "hits": w.stat["hits"],
+		"digest": ("%s|primed=%d|rs=%d" % [base, int(primed), rally_steps]).md5_text().substr(0, 16)}
+	w.dispose()
+	return out
+
+
+## Q6 (1.29): With less-lethal-first ordered, an armed non-attacking suspect inside
+## LESS_FIRST_R (4 m) receives 1 challenge and a less-lethal tool instead of a bullet.
+func _q6_less_lethal_first(seed_v: int) -> Dictionary:
+	var dept = Department.new()
+	dept.found(seed_v)
+	var lv = Maps.get_level(4)
+	var nv = _nav(4, lv)
+	var sit := {"id": "Q6", "type": "gang", "seed": seed_v, "named": "", "visibility": 2, "intel": [],
+		"occupants": [{"role": "suspect", "ech": "untrained", "room": "BED2", "arms": "rifle", "alert": 0}]}
+	var od: Dictionary = Orders.empty_orders()
+	od["objs"] = [{"kind": "clear", "rooms": []}]
+	od["less"] = true
+	var plan := {"squads": [{"members": _officer_ids(dept, 4), "orders": od, "stage": 0}]}
+	var b: Dictionary = Operation.build_planned(sit, plan, dept, lv, nv)
+	b["opts"]["time_limit"] = 180.0
+	var w = World.new()
+	w.keep_events = false
+	w.setup(lv, nv, b["cfgs"], b["postures"], b["seed"], b["alerts"], b["opts"])
+	var guard := 0
+	while not w.over and guard < 200000:
+		w.step()
+		w.events.clear()
+		guard += 1
+	var less_n: int = w.incident.less_uses.size() if w.incident != null else 0
+	var base := digest(w)
+	var out := {"t": snappedf(w.t, 0.01), "winner": w.winner, "shots": w.stat["shots"], "hits": w.stat["hits"],
+		"digest": ("%s|less=%d" % [base, less_n]).md5_text().substr(0, 16)}
+	w.dispose()
+	return out
+
+
+## Q3 (1.30): Post-operation IA case statement integrity vs. bodycam evidence and
+## squadmate witness testimony in Department.apply_result().
+func _q3_statement_integrity(seed_v: int) -> Dictionary:
+	var dept = Department.new()
+	dept.found(seed_v)
+	dept.bodycams = true
+	var ids := _officer_ids(dept, 4)
+	var lead: Dictionary = dept.get_officer(ids[0])
+	lead["integrity"] = 10
+	var mate: Dictionary = dept.get_officer(ids[1])
+	mate["integrity"] = 90
+	var lv = Maps.get_level(4)
+	var nv = _nav(4, lv)
+	var sit := {"id": "Q3", "type": "gang", "seed": seed_v, "named": "", "visibility": 2, "intel": [],
+		"occupants": [{"role": "suspect", "ech": "untrained", "room": "LIVING", "arms": "pistol", "alert": 0}]}
+	var od: Dictionary = Orders.empty_orders()
+	od["objs"] = [{"kind": "clear", "rooms": []}]
+	var plan := {"squads": [{"members": ids, "orders": od, "stage": 0}]}
+	var b: Dictionary = Operation.build_planned(sit, plan, dept, lv, nv)
+	b["opts"]["time_limit"] = 180.0
+	var w = World.new()
+	w.keep_events = false
+	w.setup(lv, nv, b["cfgs"], b["postures"], b["seed"], b["alerts"], b["opts"])
+	var guard := 0
+	while not w.over and guard < 200000:
+		w.step()
+		w.events.clear()
+		guard += 1
+	if w.incident != null:
+		w.incident.findings.append({"t": snappedf(w.t, 0.1), "kind": "excessive_force", "by": "A1",
+			"place": "the living room", "strength": "video",
+			"evidence": {"bodycam": ["A1"], "video": [], "witnesses": [], "heard": 0},
+			"text": "%s fired on an unarmed suspect in the living room." % lead["name"]})
+	dept.apply_result(w, lv.map_name)
+	var ia_parts: Array = []
+	for c in dept.cases:
+		ia_parts.append("%s|%s|%s|%s|%s|%d" % [c.get("id", ""), c.get("kind", ""), c.get("strength", ""),
+			c.get("statement", ""), c.get("testimony", ""), int(lead["integrity"])])
+	var base := digest(w)
+	var out := {"t": snappedf(w.t, 0.01), "winner": w.winner, "shots": w.stat["shots"], "hits": w.stat["hits"],
+		"digest": ("%s|ia=%s" % [base, ";".join(ia_parts)]).md5_text().substr(0, 16)}
+	w.dispose()
+	return out
+
+
 func _init() -> void:
 	var args := OS.get_cmdline_user_args()
 	var write := "--write" in args
@@ -140,6 +269,9 @@ func _init() -> void:
 		var ops := _operations(cs)
 		for k in ops:
 			results[k] = ops[k]
+	results["q1_rally_reset_1001"] = _q1_rally_reset(1001)
+	results["q3_statement_integrity_1001"] = _q3_statement_integrity(1001)
+	results["q6_less_lethal_first_1001"] = _q6_less_lethal_first(1001)
 	var bad := 0
 	var keys: Array = results.keys()
 	keys.sort()
@@ -151,6 +283,7 @@ func _init() -> void:
 			continue
 		var old: Dictionary = have.get("cases", {}).get(key, {})
 		if old.is_empty():
+			bad += 1
 			print("  NEW   %-44s %s" % [key, r["digest"]])
 		elif str(old.get("digest", "")) != str(r["digest"]):
 			bad += 1

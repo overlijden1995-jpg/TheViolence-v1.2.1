@@ -244,7 +244,28 @@
       "shots": 19,
       "t": 469.07,
       "winner": 0
+    },
+    "q1_rally_reset_1001": {
+      "digest": "0b7bde31bd0fc4aa",
+      "hits": 1,
+      "shots": 1,
+      "t": 24.6,
+      "winner": 0
+    },
+    "q3_statement_integrity_1001": {
+      "digest": "faa1459d4939bb0a",
+      "hits": 2,
+      "shots": 2,
+      "t": 18.57,
+      "winner": 0
+    },
+    "q6_less_lethal_first_1001": {
+      "digest": "dbd4d2d09a055f57",
+      "hits": 4,
+      "shots": 6,
+      "t": 53.67,
+      "winner": 0
     }
   },
-  "version": "1.2.0"
+  "version": "0.60"
 }
