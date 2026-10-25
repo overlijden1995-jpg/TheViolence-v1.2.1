@@ -92,5 +92,13 @@ func _init() -> void:
 	print("alert states now (green, yellow, red): ", alerts)
 	for dd in w.deaths.slice(maxi(0, w.deaths.size() - 12)):
 		print("  KIA %s %s (%s) %s, by %s (%s), %s, %s" % [w.clock(dd["t"]), dd["name"], dd["rank"], dd["fac_name"], dd["by_name"], dd["by_fac_name"], dd["where"], dd["place"]])
+	var bad := 0
+	if w.ops.is_empty() or w.teams.is_empty() or w.t <= 0.0:
+		bad += 1
+	for o1 in w.ops:
+		if not o1.pos.is_finite():
+			bad += 1
+	if (alerts[0] + alerts[1] + alerts[2]) <= 0:
+		bad += 1
 	w.dispose()
-	quit()
+	quit(1 if bad > 0 else 0)

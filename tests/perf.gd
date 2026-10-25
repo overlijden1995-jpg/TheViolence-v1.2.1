@@ -23,6 +23,7 @@ func _init() -> void:
 	w.setup(lv, nav, cfgs, [opt["pa"], opt["pb"]], int(opt["seed"]))
 	if opt.has("fine"):
 		w.brain.fine = true
+	var mem0 := Performance.get_monitor(Performance.MEMORY_STATIC)
 	var t0 := Time.get_ticks_usec()
 	var ticks := 0
 	var sc0: int = w.geom.sight_calls
@@ -31,13 +32,26 @@ func _init() -> void:
 		w.step()
 		ticks += 1
 	var us := Time.get_ticks_usec() - t0
-	print("%d ticks, %.2f ms/tick, sim %.1f s, realtime factor %.1fx" % [ticks, us / 1000.0 / ticks, w.t, w.t / (us / 1e6)])
+	var mem1 := Performance.get_monitor(Performance.MEMORY_STATIC)
+	var ms_per_tick := us / 1000.0 / maxf(1.0, float(ticks))
+	var mem_mb := mem1 / (1024.0 * 1024.0)
+	var mem_delta_mb := (mem1 - mem0) / (1024.0 * 1024.0)
+	print("%d ticks, %.2f ms/tick, sim %.1f s, realtime factor %.1fx, static mem %.1f MiB (delta %+.1f MiB)" % [
+		ticks, ms_per_tick, w.t, w.t / maxf(0.0001, us / 1e6), mem_mb, mem_delta_mb])
 	for k in w.prof:
-		print("  %-10s %6.2f ms/tick" % [k, w.prof[k] / 1000.0 / ticks])
-	print("  sight checks/tick %.0f, path calls/tick %.2f (%.2f ms/tick)" % [float(w.geom.sight_calls - sc0) / ticks, float(nav.path_calls - pc0) / ticks, nav.path_us / 1000.0 / ticks])
+		print("  %-10s %6.2f ms/tick" % [k, w.prof[k] / 1000.0 / maxf(1.0, float(ticks))])
+	print("  sight checks/tick %.0f, path calls/tick %.2f (%.2f ms/tick)" % [
+		float(w.geom.sight_calls - sc0) / maxf(1.0, float(ticks)),
+		float(nav.path_calls - pc0) / maxf(1.0, float(ticks)),
+		nav.path_us / 1000.0 / maxf(1.0, float(ticks))])
 	var alive := [0, 0]
 	for o in w.ops:
 		if o.alive():
 			alive[o.team] += 1
 	print("  alive %d/%d at %.1f s" % [alive[0], alive[1], w.t])
-	quit()
+	w.dispose()
+	var max_ms := float(opt.get("max_ms", "16.6"))
+	var ok: bool = ticks > 0 and ms_per_tick <= max_ms and mem_delta_mb < 128.0
+	print("GATE perf: %.2f ms/tick (<=%.1f ms), mem delta %+.1f MiB (<128.0 MiB) -> %s" % [
+		ms_per_tick, max_ms, mem_delta_mb, "PASS" if ok else "FAIL"])
+	quit(0 if ok else 1)

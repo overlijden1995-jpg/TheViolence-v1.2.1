@@ -117,8 +117,10 @@ func _init() -> void:
 		print("  %-7s won %d/%d  civilians hit %d (by police %d) killed %d  misjudged %d  excessive %d  gave up %d  cuffed %d  officers down %d  suspects down %d  rounds through walls %d  findings %d (video %d)  friendly hits %d  timeouts %d" % [
 			ech, tt["won"], tt["ops"], tt["civ_hit"], tt["civ_hit_police"], tt["civ_killed"], tt["misjudged"], tt["excessive"],
 			tt["surrendered"], tt["arrested"], tt["officers_down"], tt["suspects_down"], tt["walls"], tt["findings"], tt["video"], tt["ff"], tt["timeouts"]])
+	var ok := true
 	if echs.size() == 2:
 		var a: int = totals["patrol"]["civ_hit_police"]
 		var b: int = totals["police"]["civ_hit_police"]
-		print("GATE civilians hit by police: patrol %d vs police tactical %d -> %s" % [a, b, "PASS" if b < a else "FAIL"])
-	quit()
+		ok = b < a
+		print("GATE civilians hit by police: patrol %d vs police tactical %d -> %s" % [a, b, "PASS" if ok else "FAIL"])
+	quit(0 if ok else 1)

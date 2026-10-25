@@ -167,7 +167,10 @@ func _init() -> void:
 	if args.has("save"):        # 1.1: keep the played campaign (the trailer's election night)
 		c.save()
 		print("saved the campaign to ", Campaign.SAVE_PATH)
-	quit()
+	var weeks_req := int(args.get("weeks", "12"))
+	var ok: bool = tot_ops > 0 and actives > 0 and (weeks_req < 40 or c.over())
+	print("GATE campaign non-degeneracy: ops=%d actives=%d over=%s -> %s" % [tot_ops, actives, str(c.over()), "PASS" if ok else "FAIL"])
+	quit(0 if ok else 1)
 
 
 ## The intel-reading chief (playtest pass Q4): the suggestion, edited from what

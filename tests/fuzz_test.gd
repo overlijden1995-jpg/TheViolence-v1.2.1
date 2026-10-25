@@ -82,6 +82,9 @@ func _init() -> void:
 					bad_seen[b] = true
 			if w.keep_events:
 				w.events.clear()
+		for o_chk in w.ops:
+			if not o_chk.pos.is_finite():
+				timeouts += n
 		ends[w.winner] += 1
 		if w.t >= w.time_limit:
 			timeouts += 1
@@ -102,4 +105,5 @@ func _init() -> void:
 		if not bad_seen.has(b):
 			missing.append(b)
 	print("bad habits activated: %d/%d  missing: %s" % [bad_seen.size(), Habits.bad_ids().size(), str(missing)])
-	quit()
+	var ok: bool = (ends[0] + ends[1] + ends[2]) == n and timeouts <= maxi(2, n / 4)
+	quit(0 if ok else 1)

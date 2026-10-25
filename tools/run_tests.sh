@@ -22,12 +22,9 @@
 #
 # Two things to know about the harnesses this calls:
 #
-#   1. Not all of them set an exit code. Roughly half are diagnostics that print
-#      their numbers and quit(0) whatever happened (civ, equip, hold, lethality,
-#      maps, nav_door, op, city_sim, ...). For those this runner also scans the
-#      log for FAIL/FAILED/failures>0 and reports the suite as failed, so a
-#      regression cannot pass unnoticed. The right long-term fix is to give each
-#      harness an exit code; this is the safety net until then.
+#   1. All 34 runnable harnesses exit non-zero on failure (1.01-1.18). The runner
+#      relies on each suite's exit code and also checks the log for runtime
+#      SCRIPT ERROR / Parse Error lines so silent engine errors cannot slip past.
 #   2. determinism_test.gd compares against tests/fixtures/determinism.json. Any
 #      deliberate simulation change makes it fail until the fixture is
 #      regenerated with --write. That is by design; regenerate it in the same
@@ -66,11 +63,10 @@ if [ "$TIER" != "list" ]; then
 fi
 
 # name|tier|timeout seconds|how failures are detected|arguments
-#   exit = trust the exit code only
-#   scan = exit code, and FAIL/FAILED text in the log, and "failures" above 0
-#   note = report only: never fails the run (probes, profiles, galleries)
+#   exit = trust the exit code + check log for SCRIPT ERROR / Parse Error
+#   note = report only: never fails the run
 PLAN=$(cat <<'EOF'
-_check.gd|check|300|scan|
+_check.gd|check|300|exit|
 godot472_test.gd|quick|300|exit|
 improvements_test.gd|quick|600|exit|
 city_improvements_test.gd|quick|600|exit|
@@ -81,28 +77,29 @@ save_test.gd|quick|600|exit|
 story_test.gd|quick|300|exit|
 politics_test.gd|quick|600|exit|
 city_link_test.gd|quick|600|exit|
+rig_gallery.gd|quick|300|exit|
 determinism_test.gd|full|1800|exit|-- --verbose
 habits_test.gd|full|1200|exit|-- --strict
 brains_test.gd|full|1200|exit|-- --n=8
-civ_test.gd|full|1800|scan|-- --n=40
-equip_test.gd|full|1800|scan|-- --n=12
-lethality_test.gd|full|1200|scan|-- --n=20
-maps_test.gd|full|600|scan|
-nav_door_test.gd|full|900|scan|
-city_test.gd|full|900|scan|
-city_sim.gd|full|1800|scan|-- --seed=1001 --min=6 --quiet --fine
-op_test.gd|full|1800|scan|-- --weeks=40 --chief=sensible
-hold_test.gd|full|1800|note|
-stall_test.gd|full|1800|note|
-fuzz_test.gd|full|1800|note|-- --n=60
+civ_test.gd|full|1800|exit|-- --n=40
+equip_test.gd|full|1800|exit|-- --n=12
+lethality_test.gd|full|1200|exit|-- --n=20
+maps_test.gd|full|600|exit|
+nav_door_test.gd|full|900|exit|
+city_test.gd|full|900|exit|
+city_sim.gd|full|1800|exit|-- --seed=1001 --min=6 --quiet --fine
+op_test.gd|full|1800|exit|-- --weeks=40 --chief=sensible
+hold_test.gd|full|1800|exit|
+stall_test.gd|full|1800|exit|
+fuzz_test.gd|full|1800|exit|-- --n=60
 balance_test.gd|soak|1800|exit|-- --gate --n=20
-balance_matrix_test.gd|soak|5400|exit|-- --n=30
+balance_matrix_test.gd|soak|1800|exit|-- --gate --min=30
 scale_playtest.gd|soak|5400|exit|-- --gate --n=30
-sim_test.gd|soak|1800|note|
-perf.gd|soak|900|note|-- --map=10 --na=20 --nb=20 --t=60
-duel_probe.gd|soak|900|note|
-trace.gd|soak|900|note|
-playtest.gd|soak|1800|note|
+sim_test.gd|soak|1800|exit|
+perf.gd|soak|900|exit|-- --map=11 --na=20 --nb=20 --t=60 --gate
+duel_probe.gd|soak|900|exit|
+trace.gd|soak|900|exit|
+playtest.gd|soak|1800|exit|
 EOF
 )
 
@@ -171,11 +168,8 @@ run_one() {
 	local status="PASS"
 	case "$detect" in
 		exit)
-			[ "$rc" -ne 0 ] && status="FAIL"
-			;;
-		scan)
 			if [ "$rc" -ne 0 ]; then status="FAIL";
-			elif grep -qE '\bFAILED\b|\bFAIL\b|failures?: *[1-9]|problems?: *[1-9]|SCRIPT ERROR|Parse Error' "$log"; then status="FAIL";
+			elif grep -qE 'SCRIPT ERROR|Parse Error' "$log"; then status="FAIL";
 			fi
 			;;
 		note)

@@ -77,9 +77,10 @@ func _init() -> void:
 		for pp in String(args["pairs"]).split(";"):
 			pairs.append(pp.split(","))
 	if args.has("ablate"):
-		_ablate(args, n, size, maps)
-		quit()
+		var ok_ab := _ablate(args, n, size, maps)
+		quit(0 if ok_ab else 1)
 		return
+	var fails := 0
 	print("attack     hold       layer   A wins   exchange (A lost / B lost)   fallbacks  counters  mean s")
 	for pr in pairs:
 		for layer in ([true] if args.get("layers", "") == "on" else [false, true]):
@@ -120,14 +121,17 @@ func _init() -> void:
 							counters += 1
 					dur += w.t
 					w.dispose()
+			var rate := float(a_w) / maxf(1.0, float(games))
+			if games == 0 or (pr[0] == pr[1] and games >= 8 and (rate <= 0.05 or rate >= 0.95)):
+				fails += 1
 			print("%-10s %-10s %-6s %5.0f%%     %6.2f  (%d / %d)            %5d     %5d   %6.1f" % [pr[0], pr[1], "on" if layer else "off",
-				100.0 * a_w / games, float(a_lost) / maxf(1.0, b_lost), a_lost, b_lost, falls, counters, dur / games])
-	quit()
+				100.0 * rate, float(a_lost) / maxf(1.0, b_lost), a_lost, b_lost, falls, counters, dur / maxf(1.0, games)])
+	quit(1 if fails > 0 else 0)
 
 
 
 ## One pair, the hold layer one habit at a time ("only") or all but one ("drop").
-func _ablate(args: Dictionary, n: int, size: int, maps: Array) -> void:
+func _ablate(args: Dictionary, n: int, size: int, maps: Array) -> bool:
 	var pr: Array = String(args.get("pair", "police,police")).split(",")
 	var mode: String = args.get("ablate", "only")
 	var ids: Array = Habits.preset_good(pr[1]).filter(func(g): return String(g).begins_with("HD"))
@@ -136,6 +140,7 @@ func _ablate(args: Dictionary, n: int, size: int, maps: Array) -> void:
 	if not args.has("ids") or args.has("base"):
 		ids.push_front("")
 	print("%s vs %s, hold habits: %s one at a time" % [pr[0], pr[1], "only" if mode == "only" else "all but"])
+	var total_games := 0
 	for hid in ids:
 		only = hid if mode == "only" else ""
 		drop = hid if mode != "only" else ""
@@ -158,6 +163,7 @@ func _ablate(args: Dictionary, n: int, size: int, maps: Array) -> void:
 				while not w.over:
 					w.step()
 				games += 1
+				total_games += 1
 				if w.winner == 0:
 					a_w += 1
 				for o in w.ops:
@@ -166,5 +172,6 @@ func _ablate(args: Dictionary, n: int, size: int, maps: Array) -> void:
 					elif o.team == 1 and o.state != "ok":
 						b_lost += 1
 				w.dispose()
-		print("  %-6s A wins %3.0f%%  exchange %.2f" % [hid if hid != "" else ("none" if mode == "only" else "all"), 100.0 * a_w / games,
+		print("  %-6s A wins %3.0f%%  exchange %.2f" % [hid if hid != "" else ("none" if mode == "only" else "all"), 100.0 * a_w / maxf(1.0, games),
 			float(a_lost) / maxf(1.0, b_lost)])
+	return total_games > 0

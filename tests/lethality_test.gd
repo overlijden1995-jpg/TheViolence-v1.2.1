@@ -135,4 +135,13 @@ func _init() -> void:
 	print("what they were doing when hit:")
 	for kk in ks.slice(0, 12):
 		print("  %3d  %s" % [why[kk], kk])
-	quit()
+	var ff_total := 0
+	for fk in ff:
+		ff_total += int(ff[fk])
+	var killed_per_op: float = agg["killed"] / ops
+	var down_per_op: float = agg["down"] / ops
+	var ff_per_op: float = float(ff_total) / ops
+	var ok: bool = agg["ops"] > 0 and killed_per_op <= 1.2 and down_per_op <= 3.0 and ff_per_op <= 0.5
+	print("GATE lethality: killed/op %.2f (<=1.20), down/op %.2f (<=3.00), ff/op %.2f (<=0.50) -> %s" % [
+		killed_per_op, down_per_op, ff_per_op, "PASS" if ok else "FAIL"])
+	quit(0 if ok else 1)

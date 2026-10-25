@@ -106,7 +106,26 @@ func _process(dt: float) -> bool:
 		if p[0] == "down" and args.has("anim") and frame % 90 == 30:
 			r.fall(Vector2(1, 0.3).normalized(), frame % 180 < 90)
 	if frame == int(args.get("frames", "40")):
-		var img := get_root().get_texture().get_image()
-		img.save_png(args.get("out", "user://rig_gallery.png"))
+		var problems := 0
+		for e2 in rigs:
+			var r2 = e2[0]
+			var p2: Array = e2[1]
+			if not r2.position.is_finite() or not is_finite(r2._vis_dir) or not is_finite(r2._head_rel) or not is_finite(r2._gun_rel):
+				print("FAIL pose %s %s: non-finite transform/angles" % [p2[0], p2[1]])
+				problems += 1
+			for h in r2._hands:
+				if not (h as Vector2).is_finite():
+					print("FAIL pose %s %s: non-finite hand position" % [p2[0], p2[1]])
+					problems += 1
+			for ft in r2._feet:
+				if not (ft as Vector2).is_finite():
+					print("FAIL pose %s %s: non-finite foot position" % [p2[0], p2[1]])
+					problems += 1
+		if DisplayServer.get_name() != "headless" and get_root().get_texture() != null:
+			var img := get_root().get_texture().get_image()
+			if img != null:
+				img.save_png(args.get("out", "user://rig_gallery.png"))
+		print("rig_gallery: %d poses verified, %d problems" % [rigs.size(), problems])
+		quit(1 if problems > 0 else 0)
 		return true
 	return false

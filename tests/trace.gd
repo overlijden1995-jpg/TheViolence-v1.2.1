@@ -27,12 +27,18 @@ func _init() -> void:
 	w.setup(lv, nav, cfgs, [opt["pa"], opt["pb"]], int(opt["seed"]))
 	var next := 0.0
 	var nlog := 0
+	var bad := 0
 	while not w.over and w.t < float(opt["t"]):
 		w.step()
+		for o_chk in w.ops:
+			if not o_chk.pos.is_finite():
+				bad += 1
 		if w.t >= next and step > 0.0:
 			next += step
 			var ph := ""
 			for el in w.teams[0]["elements"]:
+				if String(el["mode"]).is_empty():
+					bad += 1
 				ph += "%s:%s " % [el["mode"].substr(0, 3), el["phase"].substr(0, 5)]
 			var line := "%5.1f %s|" % [w.t, ph]
 			for o in w.ops:
@@ -44,4 +50,7 @@ func _init() -> void:
 			while nlog < w.log_lines.size():
 				print("      ", w.log_lines[nlog]["text"])
 				nlog += 1
-	quit()
+	if w.t <= 0.0 or w.ops.is_empty():
+		bad += 1
+	w.dispose()
+	quit(1 if bad > 0 else 0)
