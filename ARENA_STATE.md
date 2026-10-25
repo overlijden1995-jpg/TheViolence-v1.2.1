@@ -76,8 +76,15 @@ Files that the Arena documents refer to but that do not exist in the tree:
 2. **No engine binary in the session environment.** `godotengine/*` release downloads
    redirect to `release-assets.githubusercontent.com`, which is outside the network
    allow-list; `tools/run_tests.sh` exits 2 (no binary). Work is capped at **V1**
-   (`python3 tools/gd47_check.py`) unless the engine is compiled from source
-   (`codeload.github.com` is reachable; a 2-core box needs ~3–4 h).
+   (`python3 tools/gd47_check.py`) unless the engine is compiled from source.
+   **Measured 2026-10-25** on this 2-core / 3 GB box: the source *is* reachable
+   (`codeload.github.com`, 71 MB tarball), SCons installs from PyPI, and the only
+   missing host tool is `pkg-config` — a stub answering `--version` is enough, because
+   every real query in `platform/linuxbsd/detect.py` sits behind a `builtin_*` flag that
+   is on by default. The editor build then compiles at **~11 objects/minute** (337
+   objects in 30 minutes), so a full build is a multi-hour job, not a 10-minute
+   workaround. Plan a session around it or use a machine with more cores; do not
+   assume an engine will be available.
 
 ## 4. Session log
 
