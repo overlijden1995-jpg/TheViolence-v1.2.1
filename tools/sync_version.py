@@ -2,15 +2,15 @@
 """Synchronize generated Godot metadata from scripts/version.gd.
 
 The GDScript constant is the canonical version. This small standard-library
-script intentionally updates only the two metadata files that Godot cannot
-populate from a script constant.
+script intentionally updates only the metadata files that Godot and the release
+build cannot populate directly from a script constant.
 
     python3 tools/sync_version.py            # rewrite the metadata (default)
     python3 tools/sync_version.py --check    # report drift, change nothing
 
 --check is the CI form: it exits 1 when scripts/version.gd disagrees with
-project.godot or export_presets.cfg, so a version bump that forgot two files
-fails the build instead of shipping mixed metadata.
+project.godot, export_presets.cfg, or tools/patch_rc.py, so a version bump that
+forgot a file fails the build instead of shipping mixed metadata.
 """
 from pathlib import Path
 import re
@@ -38,6 +38,9 @@ def main(argv):
         "export_presets.cfg": [
             (r'application/file_version="[^"]+"', f'application/file_version="{windows}"'),
             (r'application/product_version="[^"]+"', f'application/product_version="{windows}"'),
+        ],
+        "tools/patch_rc.py": [
+            (r'(?m)^VERSION\s*=\s*"[^"]+"', f'VERSION = "{windows}"'),
         ],
     }
 

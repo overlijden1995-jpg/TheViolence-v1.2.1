@@ -38,7 +38,7 @@ the outstanding balance verification, and sign the thing.**
 
 | | |
 | --- | --- |
-| Game code | 34,458 lines of GDScript in `scripts/` (118 files) |
+| Game code | 34,458 lines of GDScript in `scripts/` (81 files; 118 GDScript files total across `scripts/`, `tests/`, and `tools/`) |
 | Test code | 5,069 lines across 36 files in `tests/` (34 runnable harnesses) |
 | Tooling | 3,781 lines in `tools/` (static audit, PCK/PE inspectors, asset generators, ad cutter) |
 | Maps | 12 (`scripts/maps/registry.gd`) |
@@ -60,7 +60,7 @@ the outstanding balance verification, and sign the thing.**
 
 ### Engine and version skew
 
-- `scripts/version.gd`, `project.godot` and `export_presets.cfg` all say 1.2.1 — consistent, and the `--check` mode added here keeps them that way.
+- `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are now synced at `0.50` (`0.50.0` for Windows metadata; previously `1.2.1`), and the `--check` mode keeps them that way.
 - The project now declares **4.4 and 4.7** as its engines (`project.godot: config/features`), and 4.7.2 is called primary. The shipped exe is **4.4.1** and predates every fix listed above.
 - The changelog documents a 4.7.2 build **from source** (`tests/godot472_test.gd`, `tools/gd47_check.py`), so 4.7.2 support is real but has never been exercised through the export path.
 
@@ -150,7 +150,7 @@ manual is now 8 clean pages and mentions the new Less-lethal-first order.
 | 5b | **The display baseline is 1600×900 and Settings only offers fullscreen** | `project.godot` `[display]`; `ui/settings.gd` | On a 1366×768 laptop panel the UI is scaled down or clipped; test it there before shipping, and consider a window-size choice next to fullscreen. |
 | 6 | **English strings are inline in `.gd`** | ~1,500 literals across `scripts/ui`, `campaign`, `data` | Not a launch blocker; a launch *regret*. `tr()` keys are far cheaper to introduce now than after 1.3.0. |
 | 7 | **No measured performance budget** | `tests/perf.gd` prints where time goes; nothing asserts | Largest map is 20v20 in the city sim. Capture the numbers at release so 1.4.0 can be held to them. |
-| 8 | **Repo hygiene** | 21 noir-prose `.md` files, `series.json`, `style_lint.py`, `test_style_lint.py`, `README (1).md`, `README (2).md` from an unrelated writing project sit in the game root; `download` is a stray file containing two `.gitignore` lines; three READMEs compete | Anyone arriving at the repo — a player, a journalist, a collaborator — reads this as a lost-merge dump. Move the prose corpus out (it even documents `tools/style_lint.py`, which lives at the root). |
+| 8 | **Repo hygiene** *(resolved)* | Unrelated noir-prose `.md` files, `series.json`, `style_lint.py`, `test_style_lint.py`, `README (1).md`, `README (2).md`, stray `download`, and `Arena Protocols/` have been removed from the repository root | Only `The Violence` project files remain in the repository root. |
 
 ---
 
@@ -178,7 +178,7 @@ else. Record the filled balance table in `CHANGELOG.md`, then delete the
 2. Move `tools/ci/ci.yml` to `.github/workflows/ci.yml` (or reconnect GitHub with workflow scope) and get it green on both engines; make the full tier required on `main`.
 3. Bump to **1.3.0** in `scripts/version.gd`, run `python3 tools/sync_version.py`, commit all three files.
 4. Add `LICENSE`, `THIRD_PARTY_NOTICES`, and confirm the Remotion position.
-5. Move the prose corpus and the duplicate READMEs out of the game root; delete `download`.
+5. ~~Move the prose corpus and the duplicate READMEs out of the game root; delete `download`.~~ *(Done — removed from repo root along with `Arena Protocols/`.)*
 6. Decide the cutscene question: wire the ten unwired shorts, or exclude `assets/cutscenes/shorts` from the export preset.
 
 ### Phase 2 — Make it shippable (two to three weeks)

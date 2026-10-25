@@ -9,13 +9,13 @@ REM 3. Otherwise the standalone TheViolence.exe here, or in build\.
 REM Anything after Play.bat is passed on, e.g.  Play.bat -- --ops
 
 set "RUNTIME="
-for %%F in (Godot*.exe godot*.exe) do (
+for %%F in (Godot*.exe) do (
   echo %%~nF | findstr /i "console" >nul || (
     if not defined RUNTIME set "RUNTIME=%%~fF"
   )
 )
 if not defined RUNTIME (
-  for %%F in (Godot*console*.exe godot*console*.exe) do (
+  for %%F in (Godot*console*.exe) do (
     if not defined RUNTIME set "RUNTIME=%%~fF"
   )
 )
@@ -44,7 +44,7 @@ echo Could not play The Violence from this folder.
 echo.
 echo Put a Godot 4.4 or newer editor in this folder with the project files, for example
 echo   Godot_v4.7.2-stable_win64.exe
-echo or put TheViolence.exe here (or in build\), then double-click Play.bat again.
+echo or put TheViolence.exe here (or in build\ or release\), then double-click Play.bat again.
 echo.
 pause
 exit /b 1
