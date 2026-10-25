@@ -2,12 +2,11 @@
 
 **The Violence** is a Godot 4 police-command and close-quarters autobattler set in Port Carrick. You are the chief: choose which situations to answer, assign officers, write their orders, and watch the operation resolve hands-off. The campaign lasts forty weeks and ends with an election.
 
-This checkout contains the game source, maps, campaign systems, cutscenes, and headless test harnesses. It is not a design document or a prose story.
+**Version 0.50** — vertical slice prototype. This is a playable build with substantial content (12 maps, 40-week campaign, full simulation) that is not yet release-ready. See `Arena Protocols/ROADMAP.md` for the path to 1.0.
 
 ## Run the game
 
-1. Install **Godot 4.4 or newer**. The primary engine is **4.7.2**; **4.4.1**
-   is still supported and both are declared in `project.godot`.
+1. Install **Godot 4.4 or newer**. The project targets **4.4** and **4.7** (both declared in `project.godot`).
 2. Import `project.godot` in the Godot editor.
 3. Run the main scene (`scenes/main.tscn`) or press **F6/F5** as appropriate for your editor setup.
 
@@ -72,11 +71,11 @@ The canonical runtime version is `scripts/version.gd` (`Version.VALUE`). After c
 python3 tools/sync_version.py
 ```
 
-Commit `scripts/version.gd`, `project.godot`, and `export_presets.cfg` together. The improvement regression suite checks that these values agree.
+Commit `scripts/version.gd`, `project.godot`, and `export_presets.cfg` together.
 
 ## Headless checks
 
-One command runs them in tiers and keeps a log per suite:
+One command runs the test tiers:
 
 ```sh
 tools/run_tests.sh --check     # load every script (seconds)
@@ -86,13 +85,9 @@ tools/run_tests.sh --soak      # + the asserted balance matrix (long)
 GODOT=/path/to/godot tools/run_tests.sh --full
 ```
 
-The runner exits non-zero if any suite fails, scans the logs of the harnesses
-that do not set an exit code, and writes `build/test-logs/<suite>.log`. The same
-tiers run in CI (`tools/ci/ci.yml` — move it to `.github/workflows/ci.yml` to
-activate it) on 4.7.2 and on 4.4.1, the engine the Windows build uses. Run the suites individually when you are debugging one
-of them; otherwise prefer the runner.
+The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes `build/test-logs/<suite>.log`. The same tiers run in CI (`tools/ci/ci.yml` — move it to `.github/workflows/ci.yml` to activate it) on 4.7.2 and on 4.4.1.
 
-Run from the repository root with a Godot executable on your PATH (or substitute its absolute path):
+Run individual suites when debugging:
 
 ```sh
 godot --headless --path . -s res://tests/_check.gd
@@ -106,27 +101,14 @@ godot --headless --path . -s res://tests/city_sim.gd -- --seed=1001 --min=6 --qu
 godot --headless --path . -s res://tests/godot472_test.gd
 ```
 
-`tests/godot472_test.gd` is the Godot 4.7.2 compatibility regression: it feeds
-the save path deliberately malformed-but-parseable data, checks the navigator's
-unbuilt fallback, and re-checks that the version metadata is in sync.
-
 ### Static checks without an engine
 
-`tools/gd47_check.py` is the audit used for the 4.7.2 pass. It needs no Godot
-binary, so it runs in CI or in a sandbox with no engine:
+`tools/gd47_check.py` audits GDScript for Godot 4.7 compatibility issues. It needs no Godot binary:
 
 ```sh
 python3 tools/gd47_check.py            # scripts/, tests/, tools/
 python3 tools/gd47_check.py scripts/   # or one subtree
 ```
-
-It checks bracket balance (with strings and comments stripped), duplicate class
-members, tab-only indentation, `:=` inference from an untyped receiver — the
-construct 4.7 rejects — the GDScript-breaking APIs from 4.4 to 4.7, and
-statements that escaped into class scope. It is a linter, not a parser: confirm
-anything it reports with `tests/_check.gd`.
-
-Some harnesses accept additional options documented in their script headers. Headless execution validates logic and scene automation; it is not a substitute for visual or manual playtesting.
 
 ## Source map
 
@@ -137,5 +119,35 @@ Some harnesses accept additional options documented in their script headers. Hea
 - `scripts/city/`: city generation, navigation, director, roads, and emergency response.
 - `scripts/view/`: plan, actors, overlays, decals, replay, and presentation settings.
 - `tests/`: engine-backed unit, regression, determinism, balance, and soak harnesses.
+- `tools/`: static audit, test runner, build scripts, asset generators.
+- `cinematics/`: Remotion-based cutscene compositions (JSX source).
+- `Arena Protocols/`: agent operating documents and roadmap.
 
-See `CHANGELOG.md` for historical release notes and the in-game **How to play** pages for the full mechanics reference.
+## Current state (v0.50)
+
+| Layer | Status |
+|---|---|
+| Simulation (34K lines GDScript) | Strong — deterministic, 35-case regression fixture |
+| Campaign (40 weeks + election) | Complete — 6 situation types, 3 candidates, 4 allies |
+| Maps (12 tactical layouts) | Complete |
+| AI (4-layer brain hierarchy) | Complete — Lizard, Lion, Ape, Wolf |
+| Equipment (34 items, measured gates) | Complete |
+| Animated figures | Complete — rigged paper-silhouette system |
+| Opening cutscenes (4 films) | Complete |
+| Short interstitials (14 rendered) | 4 of 14 wired to gameplay |
+| Test harnesses (36 files) | 18 cannot exit non-zero (known gap) |
+| Windows build | Exists (88 MiB), unsigned, not tested on real hardware |
+| Music / score | **Missing** |
+| Accessibility | **Minimal** (red-ink/gore toggles only) |
+| Localization | **Not started** |
+| Balance matrix (11 cells) | **Empty** — measured bands not yet filled in |
+| CI pipeline | **Not activated** |
+| License | **None declared** |
+
+See `Arena Protocols/ROADMAP.md` for the milestone plan from 0.50 to 1.0, and `RELEASE_READINESS.md` for the full technical assessment.
+
+## Windows build
+
+A compact single-file Windows prototype is documented in `RELEASE.md` (88 MiB, Godot 4.4.1, self-contained). Rebuild with `tools/build_windows_exe.sh`. This build is unsigned and has not been tested on Windows hardware — it is a candidate, not a release.
+
+See `CHANGELOG.md` for detailed version history and the in-game **How to play** pages for the full mechanics reference.
