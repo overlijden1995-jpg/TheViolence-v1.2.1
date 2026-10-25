@@ -1,9 +1,10 @@
-# ARENA MODEL ROUTER — per-model task assignment for Godot game repositories
+# ARENA MODEL ROUTER — per-model task assignment for The Violence
 
 > **Canonical entry point: [`ARENA.md`](ARENA.md).** That single file holds the routing
 > algorithm, the stage/class/model tables, the evidence layer, the writing lane, and the
-> Godot / verification / playtest / state / git rules. The document below is an expansion
-> pack: load it only when `ARENA.md` §L17 says to.
+> Godot / verification / playtest / state / git rules — all specific to The Violence.
+> The document below is the full per-model routing expansion pack: load it when
+> `ARENA.md` §L15 says to.
 
 **Supersedes the tier-band routing in [`ARENA_README.md`](ARENA_README.md) §1 and §4.**
 Everything else in that document — the hard rules, work packets, the task ladder, the
@@ -67,6 +68,44 @@ narrative. Tier bands cannot express that. Per-model grading can.
 
 **Tiers now exist only as a fallback** for a model that cannot be identified at all
 (§2.4). A recognized model is never routed by tier.
+
+---
+
+## 0.5 The Violence: stage-to-milestone mapping
+
+The 20 generic stages (§3) map to The Violence's five milestones
+(`Arena Protocols/ROADMAP.md`). The game currently sits at **stage 10 (0.50)** —
+the vertical slice gate. Forward progress traverses stages 11–20 toward release.
+
+| Stage | Progress | Milestone | The Violence: specific gate evidence |
+|---|---|---|---|
+| 10 | 0.50 | **Current** | Fresh-eyes playtest reaches election unaided; S0/S1 list empty. **Status: met.** 12 maps, 40-week campaign, 36 harnesses, deterministic sim. Labeled v0.50. |
+| 11 | 0.55 | M1 Foundation | `tools/run_tests.sh --soak` green on multi-core; all 11 balance matrix cells filled; 18 silent harnesses given exit codes; CI activated and green on both engines |
+| 12 | 0.60 | M2 Production | LICENSE + THIRD_PARTY_NOTICES committed; repo root clean (no noir prose files); Windows exe rebuilt from current source, verified, and tested on real hardware |
+| 13 | 0.65 | M3 Experience (early) | Score composed and integrated (title theme + at least 2 ambient beds); onboarding audit completed with 3+ fresh-eyes playtests; top-5 confusion points addressed |
+| 14 | 0.70 | M3 Experience (late) | Font scaling, key rebinding, reduced-motion toggle all verified; Q1/Q6/Q3 debrief visibility lines added; all 14 shorts wired or formally excluded |
+| 15 | 0.75 | M4 Depth (early) | `tr()` infrastructure in place; at least one non-English language proofed; performance budget asserted on m11_plaza; 30-min memory soak clean |
+| 16 | 0.80 | M4 Depth (late) | 5 full 40-week campaigns logged with all 3 endings reachable; endless battle 30-min soak clean; store assets (screenshots, trailer, description) ready |
+| 17 | 0.85 | M5 Release (early) | Every open bug report has severity, repro, and owner; balance regression suite runs weekly; no S0/S1 open |
+| 18 | 0.90 | M5 Release (mid) | Frame/memory budgets met over 30-minute soak on target hardware; save migration from v0.50 tested; code signing or storefront distribution confirmed |
+| 19 | 0.95 | M5 Release (late) | Release notes written; platform submission complete; crash-log path documented for players; post-release bug path exists |
+| 20 | 1.00 | **Ship** | Version bumped to 1.0.0; tagged; published through at least one channel; final playtest logged |
+
+**Routing implication:** Models graded Optimal at `TOOL` are most needed at stages 11–12
+(test infrastructure, CI, build scripts). Models graded Optimal at `ASSETS`/`AUDIO`
+are most needed at stages 13–14 (score, accessibility assets). Models graded Optimal
+at `SYS`/`PERF` are most needed at stages 15–16 (localization, performance). Models
+graded Optimal at `STRUCT`/`DOCS` are most needed at stages 17–20 (release mechanics).
+
+**The Violence's class priority by milestone:**
+
+| Milestone | Primary classes (in order) | Why |
+|---|---|---|
+| M1 Foundation | TOOL → SYS → QA → DEBUG | Test infra must be trustworthy before anything else |
+| M2 Production | STRUCT → TOOL → SYS → UIUX | Legal, distribution, repo cleanup, Windows build |
+| M3 Experience | AUDIO → ASSETS → UIUX → SYS → NARR | Score, accessibility, onboarding polish |
+| M4 Depth | SYS → PERF → TOOL → NARR → QA | Localization, performance, extended testing |
+| M5 Release | DOCS → STRUCT → TOOL → QA → MIGR | Release notes, submission, post-release path |
 
 ---
 
@@ -475,11 +514,38 @@ signal for visual/audio quality).
 | 55 | **Solar Pro 4** | Upstage | — fallback lane (best class: ASSETS) | ARCH, MIGR, STRUCT | cheap $0.05 |
 <!-- END AUTO:dispatch-table -->
 
-Full 55 × 16 grade matrix: [`docs/arena/capability_matrix.csv`](docs/arena/capability_matrix.csv).
-Per-model cards with Optimal/Competent/Adequate/Inadequate lists:
-[`docs/arena/model_cards.md`](docs/arena/model_cards.md).
+### 8.2 The Violence dispatch priorities
 
-### 8.1 What the table actually says
+For The Violence specifically, here are the models most needed at each milestone,
+based on the class priorities from §0.5:
+
+| Milestone | Most needed models (Optimal at the primary class) | Key packets |
+|---|---|---|
+| **M1 Foundation** (TOOL→SYS→QA→DEBUG) | Kimi K3.1 Pro (TOOL), GPT-5.6 Sol (TOOL), Claude Fable 5 (TOOL), GPT-6 Sol (TOOL/SYS/DEBUG), Claude Opus 5 (DEBUG/TOOL) | Harness exit codes, CI activation, balance matrix run, determinism coverage |
+| **M2 Production** (STRUCT→TOOL→SYS→UIUX) | Claude Opus 5.5 (STRUCT), Claude Sonnet 5.5 (STRUCT), GPT-6 Astra (STRUCT/UIUX), Kimi K3.1 Pro (TOOL) | LICENSE, repo cleanup, Windows rebuild, crash logging |
+| **M3 Experience** (AUDIO→ASSETS→UIUX→SYS) | Claude Opus 5.5 (AUDIO), Claude Sonnet 5.5 (AUDIO/UIUX), GPT-6 Astra (AUDIO/UIUX), DeepSeek Flash (ASSETS) | Score composition, font scaling, rebinding, reduced motion, onboarding audit |
+| **M4 Depth** (SYS→PERF→TOOL→NARR) | Claude Opus 5.5 (SYS/PERF), Claude Sonnet 5.5 (SYS/PERF), GPT-6 Astra (SYS/PERF), GPT-6 Sol (SYS/PERF/TOOL) | tr() infrastructure, performance budgets, extended campaigns, store assets |
+| **M5 Release** (DOCS→STRUCT→TOOL→QA) | Claude Opus 5.5 (DOCS/STRUCT), Claude Sonnet 5.5 (DOCS/STRUCT), GPT-6 Astra (DOCS/STRUCT) | Release notes, platform submission, save migration, version bump |
+
+**Models that are always useful for The Violence** (Optimal at 10+ classes):
+Claude Opus 5.5 (Max), Claude Sonnet 5.5 (Max), GPT-6 Astra (Max), Claude Fable 5.1 (Max).
+These can take almost any packet at any stage.
+
+**Models that are cheap and always available** (Optimal at ASSETS and/or QA):
+GPT-6 Luna (Max, $0.08), GPT-6 Luna (Medium, $0.02), GPT-6 Luna (Low, $0.01),
+Claude Haiku 5.5 (High, $0.10), DeepSeek V4.1 Flash (both dates). These are the
+playtest and asset iteration workhorses — use them for volume work at low cost.
+
+**The Godot specialist:** Kimi K3.1 Pro (Max) is the only model in the roster whose
+vendor explicitly targets Godot (alongside Unreal and Unity). It is Optimal at ARCH,
+TOOL, and ASSETX — making it the natural owner of architecture decisions, build
+tooling, and complex asset creation for The Violence.
+
+**Do not route to The Violence:** Mistral Large 4 (41.9% factual hallucination
+makes it Inadequate at DOCS and NARR — both load-bearing for this game's manual
+and Ledger text). Nemotron-3.5-Super-VL (5.1-point hallucination deficit).
+
+---
 
 Six findings worth internalising, because they are the whole argument for replacing tiers.
 Every claim below is reproducible from `docs/arena/capability_matrix.csv`.
@@ -522,7 +588,7 @@ Every claim below is reproducible from `docs/arena/capability_matrix.csv`.
 
 ```console
 $ python3 tools/arena_router.py --model "Claude Haiku 5.5 (High)" --stage 0.60 \
-      --tasks "SYS:inventory_ui:2,NARR:innkeeper_dialogue:5,ASSETS:icon_set:5"
+      --tasks "SYS:balance_matrix_run:2,NARR:ledger_headlines:5,ASSETS:equipment_icons:5"
 MODEL   Claude Haiku 5.5 (High)  (#27, Anthropic, Proprietary)
 STAGE   12/20 · 0.60 · Content scale-up (production)
 GATE    Content count tracks the roadmap's milestone table.
@@ -530,26 +596,23 @@ GRADES  ARCH:Comp  SYS:Comp  DEBUG:Comp  MIGR:Comp  TOOL:Comp  PERF:Adeq  FEEL:A
         UIUX:Adeq  ASSETX:Adeq  ASSETS:Opti  NARR:Adeq  DOCS:Adeq  STRUCT:Adeq
         QA:Opti  BUGREP:Adeq  AUDIO:Adeq
 
-ASSIGN  ASSETS — icon_set
+ASSIGN  ASSETS — equipment_icons
         grade Optimal; ASSETS at Optimal (rung 5); stage 12 allows it, risk gate n/a
 CLAIM   PACKET-<id> · ASSETS · rung 5 · model Claude Haiku 5.5 (High) · stage 12
 ```
 
 (The `GRADES` line is wrapped here for print width; the tool prints it on one line.)
 
-Read it as: three packets are open, the model is eligible for all three, and the grade
-decides which one to take. `ASSETS` is Optimal at $0.10 a task, so the icon set is the job.
-`SYS` is only Competent and `NARR` only Adequate — both *assignable*, neither *first choice*,
-which is the distinction a tier system could not express: this model is not "the cheap tier",
-it is specifically the right owner of one class and a fallback owner of two others.
+Read it as: three packets are open from The Violence's M2 Production milestone, the model is eligible for all three, and the grade decides which one to take. `ASSETS` is Optimal at $0.10 a task, so the equipment icon set is the job. `SYS` is only Competent and `NARR` only Adequate — both *assignable*, neither *first choice*, which is the distinction a tier system could not express: this model is not "the cheap tier", it is specifically the right owner of one class and a fallback owner of two others.
 
 ### 9.2 A frontier model at a hardening stage
 
 At stage 19 (0.95, release hardening) `MIGR` is high-risk, so only Optimal graders qualify:
-five models in the entire roster. If none of them is the session's model, the save-migration
-packet stays open and the session model takes `TOOL` or `DOCS` at its own grade, or falls
-back. This is the correct behavior — an unauthorized migration is a data-loss incident, not
-a bold call.
+five models in the entire roster. For The Violence, this means the save migration from
+v0.50 format to v1.0.0 format (`scripts/campaign/save_file.gd`) — if none of them is the
+session's model, the save-migration packet stays open and the session model takes `TOOL`
+or `DOCS` at its own grade, or falls back. This is the correct behavior — an unauthorized
+migration is a data-loss incident, not a bold call.
 
 ### 9.3 Fallback
 
@@ -564,10 +627,11 @@ ASSIGN  (no qualifying task) -> fallback lane
 The 18-point tool-hallucination deficit is why this model is Inadequate at every engineering
 class; validation widened that veto to `DOCS` and `NARR` because the same defect shows up as
 41.9% factual hallucination (§12.3), so release-hardening documentation is closed to it too.
-The QA/BUGREP floor is why it still gets a useful, well-specified session. The `NOT ASSIGNED`
-block is the audit trail — each rejection states its reason, so the next model to arrive sees
-which packets are still open. Note the `EVIDENCE` line: the router says out loud which grades
-came from outside the leaderboard, so nobody has to trust an invisible hand-edit.
+The QA/BUGREP floor is why it still gets a useful, well-specified session. For The Violence,
+this means a fresh-eyes playtest of the campaign loop: boot the game, play through one week's
+operations, file every bug found, and write 3 ranked recommendations about onboarding, feel,
+or obvious issues. The `NOT ASSIGNED` block is the audit trail — each rejection states its
+reason, so the next model to arrive sees which packets are still open.
 
 ### 9.4 Whole-field dispatch
 
@@ -577,6 +641,10 @@ $ python3 tools/arena_router.py --stage 0.50 --all-models
 
 Buckets every model by the class it would take at the vertical-slice gate — the fastest way
 to see which stages starve which classes, and therefore where the roadmap is mis-shaped.
+For The Violence at stage 10, this shows that the current milestone (M1 Foundation) is
+TOOL-heavy (test infrastructure, CI) with SYS support (determinism coverage) — models
+Optimal at TOOL (Kimi K3.1 Pro, GPT-5.6 Sol, Claude Fable 5, Claude Opus 5, GPT-6 Sol)
+are the most valuable here.
 
 ---
 
@@ -645,6 +713,7 @@ contradict a grade, the session log wins:
 
 | Date | Change | ADR |
 |---|---|---|
+| 2026-10-25 | The Violence dispatch priorities (§8.2): per-milestone model recommendations for this game's specific class needs. Stage-to-milestone mapping (§0.5). Worked examples (§9) updated with game-specific packets. | — |
 | 2026-10-25 | Per-model routing replaces tier-band routing. Snapshot 2026-10-23, 55 models, 16 job classes, 20 stages. | `docs/adr/0001-per-model-routing.md` |
 | 2026-10-25 | Creative writing lane (§13): competence × censorship parallel list in `ARENA_CREATIVE_WRITING.md`. | — |
 | 2026-10-25 | External validation (§12): vendor self-assessments + community evidence. 7 grade cells corrected via `EVIDENCE`; rules 9–10 added to §6; Muse Wonder Full flagged non-dispatchable; `--evidence` added. | — |

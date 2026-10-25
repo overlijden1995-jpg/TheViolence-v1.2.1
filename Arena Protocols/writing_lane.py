@@ -21,10 +21,14 @@ import pathlib
 from typing import Any
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+ARENA_DIR = pathlib.Path(__file__).resolve().parent
+# Data files (the Arena data CSVs are optional — this tool is a reference
+# implementation from the generic router; The Violence's writing needs are
+# documented directly in ARENA_CREATIVE_WRITING.md without requiring these)
 ROSTER = ROOT / "docs" / "arena" / "leaderboard_2026-10-23.csv"
 MATRIX = ROOT / "docs" / "arena" / "capability_matrix.csv"
 CURATED = ROOT / "docs" / "arena" / "writing_censorship.csv"
-DOC = ROOT / "ARENA_CREATIVE_WRITING.md"
+DOC = ARENA_DIR / "ARENA_CREATIVE_WRITING.md"
 
 A_BEGIN = "<!-- BEGIN AUTO:writing-by-competence -->"
 A_END = "<!-- END AUTO:writing-by-competence -->"
