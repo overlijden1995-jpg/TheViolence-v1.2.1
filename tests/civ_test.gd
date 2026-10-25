@@ -34,6 +34,9 @@ func _init() -> void:
 	var totals := {}
 	var t0 := Time.get_ticks_msec()
 	var echs: Array = ["patrol", "police"] if only == "" else [only]
+	# ROADMAP 1.02: the gate result becomes the exit code. With --only there is no
+	# pair to compare, so the comparison gate is not run and the suite exits 0.
+	var gate_ok := true
 	for ech in echs:
 		totals[ech] = {"ops": 0, "civ_hit": 0, "civ_hit_police": 0, "civ_killed": 0, "misjudged": 0, "excessive": 0,
 			"surrendered": 0, "arrested": 0, "officers_down": 0, "suspects_down": 0, "timeouts": 0, "walls": 0,
@@ -120,5 +123,6 @@ func _init() -> void:
 	if echs.size() == 2:
 		var a: int = totals["patrol"]["civ_hit_police"]
 		var b: int = totals["police"]["civ_hit_police"]
-		print("GATE civilians hit by police: patrol %d vs police tactical %d -> %s" % [a, b, "PASS" if b < a else "FAIL"])
-	quit()
+		gate_ok = b < a
+		print("GATE civilians hit by police: patrol %d vs police tactical %d -> %s" % [a, b, "PASS" if gate_ok else "FAIL"])
+	quit(0 if gate_ok else 1)

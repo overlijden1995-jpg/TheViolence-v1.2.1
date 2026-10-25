@@ -2,6 +2,53 @@
 
 Newest first. The README covers the game as it stands; this file keeps the history.
 
+## Unreleased — five harnesses stop lying about their result
+
+ROADMAP M1 test infrastructure, tasks 1.01, 1.02, 1.03, 1.06 and 1.07. Five harnesses
+already computed their own verdict and then threw it away: `quit()` with no argument
+exits 0 whatever happened. `tools/run_tests.sh` covered them by scanning their logs, so
+a regression could not pass unnoticed — but the suite itself could never fail a build,
+which is the gap the roadmap is closing.
+
+- **`tests/_check.gd`** counts what it loaded and prints `check done: N loaded, M failed`;
+  exits 1 if any script failed to load.
+- **`tests/civ_test.gd`** exits 1 when the patrol-vs-police-tactical civilian gate fails.
+  With `--only` there is no pair to compare, so the comparison gate is skipped and the
+  suite exits 0, as before.
+- **`tests/equip_test.gd`** exits 1 when any of the paired-run equipment gates fails
+  (`passed < tests.size()`).
+- **`tests/maps_test.gd`**, **`tests/nav_door_test.gd`** exit 1 when their `problems`
+  count is non-zero.
+
+No assertion was moved, loosened or skipped, and no log line changed. `run_tests.sh`
+keeps the log-scan detection for these suites in addition to the exit code: removing the
+scan is 1.19, which needs all of 1.01–1.18.
+
+**Verification: static only.** `python3 tools/gd47_check.py` is clean over 118 files.
+`tools/run_tests.sh --check` could not run — no Godot binary in the environment, and the
+engine's release downloads are outside the network allow-list — so the five new exit
+paths have **not** been executed. Nothing under `scripts/` changed, so
+`tests/fixtures/determinism.json` is untouched.
+
+**Doc corrections, measured rather than copied.** `README.md` and `ARENA.md` L3 claimed
+"18 of 34 harnesses cannot exit non-zero"; the tree has 36 harnesses, 20 of which could
+not, 15 after this pass (two of the 15, `tests/gallery.gd` and `tests/teams.gd`, are
+tools rather than gates). The same tables said 4 of 14 shorts were wired; five keys are
+reachable from `scripts/main.gd` (`s01_week`, `s06_officer_down`, `s09_case`,
+`s11_election`, `s12_end_of_watch`). Both corrected in place.
+
+**New file — `ARENA_STATE.md`.** The router and `ARENA.md` L0/L12 both require a session
+state file and the repo had none, so every session began by reading a missing file. It
+now carries the routing line, the measured state table, the known-red list, this pass's
+session log and the next steps.
+
+**CI stays inactive, and this is a permissions fact, not a code one.** `tools/ci/ci.yml`
+is valid YAML and both engines it pins exist as releases. Moving it to
+`.github/workflows/ci.yml` is rejected by GitHub: *"refusing to allow a GitHub App to
+create or update workflow ... without `workflows` permission"*. ROADMAP 1.32 is annotated
+with the failure; it needs a reconnect that grants that scope, or the workflow created in
+the UI.
+
 ## Unreleased — the first engine run, and what it found
 
 For the first time since the playtest pass landed, the tree was **executed**:
