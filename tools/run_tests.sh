@@ -175,7 +175,7 @@ run_one() {
 			;;
 		scan)
 			if [ "$rc" -ne 0 ]; then status="FAIL";
-			elif grep -qE '\bFAILED\b|\bFAIL\b|failures?: *[1-9]|problems?: *[1-9]' "$log"; then status="FAIL";
+			elif grep -qE '\bFAILED\b|\bFAIL\b|failures?: *[1-9]|problems?: *[1-9]|SCRIPT ERROR|Parse Error' "$log"; then status="FAIL";
 			fi
 			;;
 		note)
@@ -190,6 +190,7 @@ run_one() {
 		FAIL) fail=$((fail+1)); failed_names+=("$name"); printf '  %sFAIL%s    %-28s %4ss  %s\n' "$C_FAIL" "$C_OFF" "${name%.gd}" "$took" "$log" ;;
 		TIMEOUT) timeout_n=$((timeout_n+1)); failed_names+=("$name (timeout)"); printf '  %sTIMEOUT%s %-28s %4ss  %s\n' "$C_FAIL" "$C_OFF" "${name%.gd}" "$took" "$log" ;;
 	esac
+	printf '%s\n' "$status" >"$LOGS/${name%.gd}.status"
 	# keep the interesting part of a failure in front of the reader
 	if [ "$status" = "FAIL" ]; then
 		grep -nE '\bFAILED\b|\bFAIL\b|failures?: *[1-9]|problems?: *[1-9]|SCRIPT ERROR|Parse Error' "$log" | head -5 | sed 's/^/          /'
@@ -206,25 +207,25 @@ if [ "$JOBS" -gt 1 ]; then
 	printf '%s\n' "${selected[@]}" | xargs -P "$JOBS" -I{} bash -c 'run_one "$@"' _ {}
 	# xargs cannot feed the counters back, so the parallel path re-derives them
 	pass=0; fail=0; timeout_n=0; noted=0; failed_names=()
-	for f in "$LOGS"/*.log; do
-		base=$(basename "$f" .log)
-		row=$(printf '%s\n' "${selected[@]}" | grep -m1 "^${base}.gd|")
-		[ -z "$row" ] && continue
-		detect=$(echo "$row" | cut -d'|' -f4)
-		case "$detect" in
-			note) noted=$((noted+1)); continue ;;
+	for row in "${selected[@]}"; do
+		IFS='|' read -r name _tier _budget _detect _args <<< "$row"
+		base="${name%.gd}"
+		status_file="$LOGS/$base.status"
+		st="FAIL"
+		[ -f "$status_file" ] && st=$(cat "$status_file")
+		case "$st" in
+			PASS) pass=$((pass+1)) ;;
+			NOTE) noted=$((noted+1)) ;;
+			TIMEOUT) timeout_n=$((timeout_n+1)); failed_names+=("$name (timeout)") ;;
+			*) fail=$((fail+1)); failed_names+=("$name") ;;
 		esac
-		if grep -qE '\bFAILED\b|\bFAIL\b|failures?: *[1-9]|problems?: *[1-9]' "$f"; then
-			fail=$((fail+1)); failed_names+=("$base")
-		else
-			pass=$((pass+1))
-		fi
 	done
 else
 	for row in "${selected[@]}"; do
 		run_one "$row"
 	done
 fi
+rm -f "$LOGS"/*.status
 
 echo
 echo "----------------------------------------------------------------"

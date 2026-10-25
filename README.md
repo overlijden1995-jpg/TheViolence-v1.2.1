@@ -2,12 +2,12 @@
 
 **The Violence** is a Godot 4 police-command and close-quarters autobattler set in Port Carrick. You are the chief: choose which situations to answer, assign officers, write their orders, and watch the operation resolve hands-off. The campaign lasts forty weeks and ends with an election.
 
-**Version 0.50** — vertical slice prototype. This is a playable build with substantial content (12 maps, 40-week campaign, full simulation) that is not yet release-ready. See `Arena Protocols/ROADMAP.md` for the path to 1.0.
+**Version 0.50** — vertical slice prototype. This is a playable build with substantial content (12 maps, 40-week campaign, full simulation) that is not yet release-ready. See `RELEASE_READINESS.md` for the technical assessment and release plan.
 
 ## Run the game
 
 1. Install **Godot 4.4 or newer**. The project targets **4.4** and **4.7** (both declared in `project.godot`).
-2. Import `project.godot` in the Godot editor.
+2. Import `project.godot` in the Godot editor, or launch from the repository root with `Play.bat` (Windows) or `./play.sh` (Linux) when `godot` is on `PATH` (or a Godot binary / exported executable is in the folder).
 3. Run the main scene (`scenes/main.tscn`) or press **F6/F5** as appropriate for your editor setup.
 
 The project uses the compatibility renderer. The title screen offers three ways to play:
@@ -71,7 +71,7 @@ The canonical runtime version is `scripts/version.gd` (`Version.VALUE`). After c
 python3 tools/sync_version.py
 ```
 
-Commit `scripts/version.gd`, `project.godot`, and `export_presets.cfg` together.
+Commit `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` together.
 
 ## Headless checks
 
@@ -112,22 +112,24 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 
 ## Source map
 
+- `scenes/`: main campaign/tactical scene (`main.tscn`) and endless city scene (`city.tscn`).
 - `scripts/main.gd`: application flow, operation playback, replay, and cutscene integration.
-- `scripts/ui/ops_ui.gd`: board, planner, debrief, IA, and first-operation guide.
-- `scripts/campaign/`: situations, planning, public-intel readiness, outcomes, department, politics, and saves.
+- `scripts/ui/`: board, planner, debrief, IA, first-operation guide (`ops_ui.gd`), title screen, manual, settings, and cutscene players.
+- `scripts/campaign/`: situations, planning, public-intel readiness, outcomes, department, politics, story archive, and saves.
 - `scripts/sim/`: deterministic world, operators, navigation, combat, recorder, and pacing classifiers.
 - `scripts/city/`: city generation, navigation, director, roads, and emergency response.
-- `scripts/view/`: plan, actors, overlays, decals, replay, and presentation settings.
+- `scripts/data/` & `scripts/maps/`: habits, equipment, courses, and the twelve tactical map definitions.
+- `scripts/view/`: plan, actors, overlays, decals, replay, sound, and presentation settings.
+- `assets/`: generated SVG sprites, synthesised WAV sound effects, and Ogg Theora cutscenes.
 - `tests/`: engine-backed unit, regression, determinism, balance, and soak harnesses.
-- `tools/`: static audit, test runner, build scripts, asset generators.
-- `cinematics/`: Remotion-based cutscene compositions (JSX source).
-- `Arena Protocols/`: agent operating documents and roadmap.
+- `tools/`: static audit, test runner, Windows cross-build script, PE/PCK inspectors, and asset generators.
+- `cinematics/`: Remotion-based cutscene compositions (JSX source and conversion scripts).
 
 ## Current state (v0.50)
 
 | Layer | Status |
 |---|---|
-| Simulation (34K lines GDScript) | Strong — deterministic, 35-case regression fixture |
+| Simulation (34.5K lines across 81 GDScript files in `scripts/`) | Strong — deterministic, 35-case regression fixture |
 | Campaign (40 weeks + election) | Complete — 6 situation types, 3 candidates, 4 allies |
 | Maps (12 tactical layouts) | Complete |
 | AI (4-layer brain hierarchy) | Complete — Lizard, Lion, Ape, Wolf |
@@ -135,7 +137,7 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 | Animated figures | Complete — rigged paper-silhouette system |
 | Opening cutscenes (4 films) | Complete |
 | Short interstitials (14 rendered) | 4 of 14 wired to gameplay |
-| Test harnesses (34 runnable + 2 visual scenes in `tests/`) | 18 of 34 cannot exit non-zero (known gap) |
+| Test harnesses (34 runnable + 2 visual scenes in `tests/`) | 18 of 34 cannot exit non-zero (known gap; `tools/run_tests.sh` scans logs as a safety net) |
 | Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned and untested on Windows hardware) |
 | Music / score | **Missing** |
 | Accessibility | **Minimal** (red-ink/gore toggles only) |
@@ -144,7 +146,7 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 | CI pipeline | **Not activated** (`tools/ci/ci.yml` template only) |
 | License | **None declared** |
 
-See `Arena Protocols/ROADMAP.md` for the milestone plan from 0.50 to 1.0, and `RELEASE_READINESS.md` for the full technical assessment.
+See `RELEASE_READINESS.md` for the full technical assessment and release plan, and `PLAYTEST_REPORT.md` for the design and playtest audit.
 
 ## Windows build
 
