@@ -4,7 +4,7 @@
 #
 #   sh scripts/to_game-shorts.sh              # every short in out/shorts
 #   sh scripts/to_game-shorts.sh S01-Week     # just one
-#   Q=5 sh scripts/to_game-shorts.sh          # Theora quality (default 5)
+#   Q=5 sh scripts/to_game-shorts.sh          # Override Theora quality (default 4)
 #
 # ffmpeg: FFMPEG, else the Playwright/apt binary, else @ffmpeg-installer. The Remotion
 # compositor's own ffmpeg cannot encode Theora or Vorbis, so it is never used here.
@@ -26,7 +26,7 @@ if [ -z "$FF" ]; then
 fi
 echo "ffmpeg: $FF"
 
-Q=${Q:-5}
+Q=${Q:-4}
 list="$*"
 if [ -z "$list" ]; then
   list=$(ls out/shorts/*.mp4 2>/dev/null | sed 's#.*/##; s#\.mp4$##' || true)

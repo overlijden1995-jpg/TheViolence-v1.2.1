@@ -18,7 +18,7 @@
 # Usage:  tools/build_windows_exe.sh          (about 90 minutes on 2 cores)
 #         JOBS=8 tools/build_windows_exe.sh   (faster on a real machine)
 #
-# Output: release/TheViolence.exe  (~110 MB, single file)
+# Output: release/TheViolence.exe  (single file; fail if it reaches 100 MB)
 #
 # Requirements: sh, curl, tar, python3 (>=3.8), gcc/g++ for the editor build.
 set -eu
@@ -42,8 +42,10 @@ mkdir -p "$WORK" "$ROOT/release"
 say "toolchain (python venv: scons + zig)"
 if [ ! -x "$VENV/bin/scons" ]; then
     python3 -m venv "$VENV"
-    "$VENV/bin/pip" install --quiet "scons==4.8.1" ziglang
 fi
+# Keep the cross-compiler pinned. Newer Zig releases can produce incompatible
+# MinGW objects (or abort during this Godot 4.4.1 build).
+"$VENV/bin/pip" install --quiet --disable-pip-version-check "scons==4.8.1" "ziglang==0.13.0"
 SCONS=$VENV/bin/scons
 ZIGEXE=$(ls $VENV/lib/python3*/site-packages/ziglang/zig | head -1)
 "$ZIGEXE" version
@@ -184,5 +186,10 @@ rm -f "$OUT"
 # ------------------------------------------------------------- 8. verify
 say "verify"
 ls -lh "$OUT"
+SIZE=$(wc -c < "$OUT" | tr -d ' ')
+if [ "$SIZE" -ge 100000000 ]; then
+    echo "Error: $OUT is $SIZE bytes; GitHub's per-file limit is 100,000,000 bytes." >&2
+    exit 1
+fi
 python3 "$ROOT/tools/inspect_pck.py" "$OUT" --verify
 printf '\nDone: %s\n' "$OUT"

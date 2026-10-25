@@ -1,12 +1,14 @@
 # release/
 
-`TheViolence.exe` — the single-file Windows build — belongs in this folder.
+`TheViolence.exe` is the single-file Windows prototype build. The current
+compact build is under GitHub's 100 MB per-file limit, but binaries remain
+ignored to keep them out of source history. Distribute it as a GitHub Release
+asset instead.
 
-It is not committed: GitHub rejects files over 100 MB and this one is 107 MiB.
-Attach it to a GitHub Release instead. Rebuild it with:
+Rebuild with:
 
 ```sh
-tools/build_windows_exe.sh
+JOBS=2 tools/build_windows_exe.sh
 ```
 
-See `../RELEASE.md` for what is inside it and how it was produced.
+See `../RELEASE.md` for contents, verification, and the current checksum.
