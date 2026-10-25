@@ -5,7 +5,7 @@ version: 4.0 · date: 2026-10-25
 game: The Violence — police-command & CQB autobattler (Godot 4.4 / 4.7)
 repo_version: 0.50 (vertical slice prototype — NOT a release build)
 precedence: project.godot > this file > ARENA_MODEL_ROUTER.md > ARENA_CREATIVE_WRITING.md > ARENA_README.md
-load_cost: this file only. Expansion docs are optional (L17).
+load_cost: this file only. Expansion docs are optional (L15).
 ---
 
 # ARENA — The Violence agent contract
@@ -22,7 +22,7 @@ python3 tools/gd47_check.py                  # 4 static audit (no engine needed)
 bash tools/run_tests.sh --check              # 5 every script loads (needs Godot)
 ```
 
-Then: identify task → work → verify (L10) → commit on `arena/<slug>` → PR.
+Then: identify task → work → verify (L7) → record state in `ARENA_STATE.md` (L12) → commit on `arena/<slug>` → PR (L11).
 **A session with no verification and no recorded outcome did not happen.**
 
 ## L1 · Invariants (violating one invalidates the session)
@@ -45,9 +45,9 @@ I10 Record the session before finishing (L12). Unrecorded = lost.
 I11 Roadmap / README / canon / save-format changes are high-risk (L2, L5) — require
     documented justification and explicit human-review flag.
 I12 "Played" requires execution. Static reading is a read-through, not a playtest.
-I13 Never idle. No qualified task → fallback lane (L2.R6): playtest + bug report.
+I13 Never idle. No qualified task → fallback lane (L2.R5): playtest + bug report.
 I14 Engine version: project.godot wins over this document. Record discrepancies.
-I15 Two failed attempts at one fix → stop fixing, start documenting, switch task (L14).
+I15 Two failed attempts at one fix → stop fixing, start documenting, switch task (L13).
 I16 The simulation is deterministic. Never use bare randi() in gameplay logic — always
     RandomNumberGenerator seeded from GameState. The 35-case determinism fixture is the
     regression net; any sim change must explain its fixture diff.
@@ -95,19 +95,19 @@ The Violence is a **vertical slice prototype** — not a release candidate. The 
 | Core simulation | Strong — 34,458 lines GDScript, deterministic | `scripts/sim/`, 35-case fixture |
 | Campaign loop | Strong — 40 weeks, elections, politics | `scripts/campaign/` |
 | 12 tactical maps | Complete | `scripts/maps/registry.gd` |
-| Test harnesses | 36 files, 18 cannot exit non-zero | `tests/` |
+| Test harnesses | 34 runnable harnesses (36 `.gd` files), 18 cannot exit non-zero | `tests/` |
 | Animated figures | Complete | `scripts/view/rig.gd` |
 | Equipment database | 34 items, measured gates | `scripts/data/equipment.gd` |
 | AI brains (4-layer) | Complete, gated | `scripts/sim/brain.gd` |
 | Opening cutscenes | 4 films, rendered | `assets/cutscenes/` |
 | Short cutscenes | 14 rendered, 4 wired | `scripts/ui/shorts.gd` |
-| Windows build | Exists (88 MiB), unsigned, untested on hardware | `release/` |
+| Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned, untested on hardware) | `release/README.md`, `RELEASE.md` |
 | Music/score | **Missing** | only SFX + ambience beds |
 | Accessibility | **Minimal** (red-ink/gore toggles only) | `scripts/ui/settings.gd` |
 | Localization | **Not started** — inline English strings | ~1,500 literals |
 | Performance budgets | **Not asserted** | `tests/perf.gd` prints only |
 | Balance matrix | **11 cells empty** | `tests/balance_matrix_test.gd` |
-| CI pipeline | **Not activated** | `tools/ci/ci.yml` needs move |
+| CI pipeline | **Not activated** | `tools/ci/ci.yml` template only |
 | License | **None declared** | no LICENSE file |
 
 ## L4 · The game's architecture (know before editing)

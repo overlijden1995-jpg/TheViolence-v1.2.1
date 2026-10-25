@@ -111,7 +111,7 @@ notes: <gotchas, prior attempts>
 ### Acceptance criteria that actually gate
 
 - ❌ "Improve the balance."
-- ✅ "Equal regulars 5v5 on map m04: attacker wins 30–50% over 80 fights. Gate in `balance_test.gd`."
+- ✅ "Equal regulars 5v5 on map m04: attacker wins 30–50% over 80 fights. Gate in `tests/balance_test.gd`."
 
 - ❌ "Write briefing text."
 - ✅ "Briefing for warrant service, Ward 3: confirmed facts listed separately from estimates with confidence; no interpretation; all street names consistent with existing ward."
@@ -214,7 +214,7 @@ For agents who need context fast:
 - **Art:** Ink on paper, one red (#B31F26). Never a team color.
 - **Sound:** 34 synthesized SFX + ambience beds. No music yet.
 - **Key code:** `scripts/sim/world.gd` (sim core), `scripts/main.gd` (flow), `scripts/campaign/` (the campaign).
-- **Tests:** 36 harnesses in `tests/`, run via `tools/run_tests.sh`.
+- **Tests:** 34 runnable harnesses (36 `.gd` files) in `tests/`, run via `tools/run_tests.sh`.
 - **Save:** Versioned, temp-then-rename, .bak fallback. One ironman slot.
 - **Determinism:** 35 seeded cases, hashed. Any sim change must account for the fixture.
 
