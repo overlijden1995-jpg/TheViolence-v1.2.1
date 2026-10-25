@@ -1,6 +1,6 @@
 # `style_lint.py` — prose diagnostics
 
-A small, dependency-free diagnostic for the voice cards in [`data/series.json`](../data/series.json).
+A small, dependency-free diagnostic for the voice cards in [`series.json`](series.json).
 It measures surface features of a manuscript and compares them with an editorial target derived from a
 series' twelve dials.
 
@@ -14,22 +14,22 @@ probably not what you intended.
 
 ```bash
 # List the available voice cards
-python3 tools/style_lint.py --list-voices
+python3 style_lint.py --list-voices
 
 # Basic metrics
-python3 tools/style_lint.py chapter-01.md
+python3 style_lint.py chandler-scene.md
 
 # Compare against a voice
-python3 tools/style_lint.py chapter-01.md --voice chandler
+python3 style_lint.py chandler-scene.md --voice chandler
 
 # Compare against two voices
-python3 tools/style_lint.py chapter-01.md --voice ellroy --compare leonard
+python3 style_lint.py chandler-scene.md --voice ellroy --compare leonard
 
 # JSON for an editor or CI
-python3 tools/style_lint.py chapter-01.md --voice connelly --json
+python3 style_lint.py chandler-scene.md --voice connelly --json
 
 # Run the tests
-python3 tools/test_style_lint.py
+python3 test_style_lint.py
 ```
 
 Requires Python 3.10+ (uses `dataclasses`, `statistics`, and modern type hints). No third-party packages.
@@ -81,7 +81,7 @@ numbers_per_1000         = 1 + 1.2 × procedure           (±7)
 
 These are **calibration aids**, not statistical models. They are deliberately simple so you can see exactly
 why a verdict was produced. The dials themselves are editorial estimates; see
-[`docs/prose-bible/08-sources-and-glossary.md`](../docs/prose-bible/08-sources-and-glossary.md).
+[`08-sources-and-glossary.md`](08-sources-and-glossary.md).
 
 Verdicts:
 
@@ -98,9 +98,9 @@ Read the **delta**, not the verdict. A deliberate deviation is a choice; an unno
 Running the Chandler sample that ships with the tool:
 
 ```console
-$ python3 tools/style_lint.py tools/samples/chandler-scene.md --voice chandler
+$ python3 style_lint.py chandler-scene.md --voice chandler
 
-=== tools/samples/chandler-scene.md ===
+=== chandler-scene.md ===
   words 326 · sentences 19 · paragraphs 15 · mean paragraph 21.7 words
   sentence mean 17.2 · median 12 · sd 15.0 · range 2–47
   narration mean 24.2 · narration sd 16.2
@@ -127,7 +127,7 @@ The sample is deliberately under-dialogued for Marlowe: it is a narration exerci
 Note that the verdicts are *directional*, not grades. A scene can be 25 points under the dialogue target and
 still be the right scene — but now you know which lever you are pulling.
 
-Two samples ship in `tools/samples/`:
+Two samples ship in the repository root:
 
 | File | Register | What it demonstrates |
 | --- | --- | --- |
@@ -153,7 +153,7 @@ Both are original pastiche written for this repository, not excerpts.
 
 ## Extending
 
-To add a voice, append a card to `data/series.json` with the twelve dials and the metadata fields. The
+To add a voice, append a card to `series.json` with the twelve dials and the metadata fields. The
 linter discovers it automatically; `--list-voices` will show it.
 
 To add a cliché, append a `(name, regex)` pair to `CLICHES` in `style_lint.py` and add a unit test.

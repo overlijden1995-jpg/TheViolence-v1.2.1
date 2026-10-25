@@ -17,8 +17,8 @@ referenced here rather than restated.
 | Roadmap resolution | 20 stages, `0.05 … 1.00` in `0.05` steps ([§3](#3-the-20-stage-roadmap-increment-model)) |
 | Capability scale | per **job class**, four grades: **Optimal / Competent / Adequate / Inadequate** ([§4](#4-the-four-capability-grades)) |
 | Default lane | playtesting + suggestions when nothing in the stage rates ≥ Adequate ([§7](#7-the-fallback-lane-playtesting--suggestions)) |
-| Data snapshot | Arena.ai Agent Arena, **2026-10-23**, 55 models, 2,557,423 sessions (`docs/arena/leaderboard_2026-10-23.csv`) |
-| Implementation | `tools/arena_router.py` (this document is the spec; the script is the reference implementation and both are tested against each other) |
+| Data snapshot | Arena.ai Agent Arena, **2026-10-23**, 55 models, 2,557,423 sessions (embedded in [§8](#8-dispatch-table-all-55-models)) |
+| Implementation | Specification-only in this document ([§5](#5-the-routing-flowchart), [§8](#8-dispatch-table-all-55-models)) and [`ARENA.md`](ARENA.md) §L2 |
 | Owner | Repo maintainers; only models graded **Optimal** for `STRUCT` may edit this file |
 
 > **The one-sentence version.** We stopped asking "how good is this model overall" and
@@ -57,17 +57,17 @@ narrative. Tier bands cannot express that. Per-model grading can.
 
 **Not changed, and not negotiable.**
 
-- The **twelve hard rules** in `ARENA_README.md` §0.3.
-- **Work packets** (`§6`) — every assignment is a packet with scope, acceptance criteria and
+- The **twelve hard rules** in `ARENA_README.md` §0 (and `ARENA.md` §L1).
+- **Work packets** (`ARENA_README.md` §3 / `ARENA.md` §L9) — every assignment is a packet with scope, acceptance criteria and
   a verification method. The router chooses *who*; the packet defines *what*.
-- The **task ladder** (`§7`) — rungs 1–6 still order priority. The router ranks within the
+- The **task ladder** (`ARENA_README.md` §4 / `ARENA.md` §L8) — rungs 1–6 still order priority. The router ranks within the
   tasks that survive the ladder.
-- The **verification ladder** (`§9`) — v0…v5, and the rule that unverified work is labeled
+- The **verification ladder** (`ARENA_README.md` §5 / `ARENA.md` §L7) — v0…v5, and the rule that unverified work is labeled
   unverified.
-- The **handoff protocol** (`§13`) and **playtesting protocol** (`§10`).
+- The **handoff protocol** (`ARENA_README.md` §8 / `ARENA.md` §L12) and **playtesting protocol** (`ARENA_README.md` §6 / `ARENA.md` §L10).
 
 **Tiers now exist only as a fallback** for a model that cannot be identified at all
-(§2.4). A recognized model is never routed by tier.
+(§2.3). A recognized model is never routed by tier.
 
 ---
 
@@ -169,8 +169,8 @@ A model released after the snapshot will not match. Handle it in this order:
    roster-refresh packet. (Newer sibling is usually ≥ its predecessor; do not assume.)
 2. **Different family, new model** → route using the parent lab's best-graded entry as a
    *ceiling* and the field median as a floor, and label the assignment `provisional`.
-3. **No basis at all** → fall back to the legacy tier bands from `ARENA_README.md` §1, run
-   the §1.4 capability probe there, and cap the session at tasks the probe demonstrated.
+3. **No basis at all** → fall back to the legacy tier bands from `ARENA_README.md` §1, verify
+   baseline capability via `ARENA.md` §L7, and cap the session at tasks the verification rung supports.
 
 Provisional and inherited assignments must be re-checked at the next roster refresh; their
 observed outcomes are exactly the evidence used to grade the model properly later (§10.3).
@@ -204,7 +204,7 @@ but mostly idle at 0.20 and 0.95 — where it correctly falls to playtesting.
 | 2 | 0.10 | Core loop decision | prototype | ARCH, STRUCT, NARR | Core loop written down; one ADR; no code predicated on the opposite |
 | 3 | 0.15 | Playable skeleton | prototype | SYS, ARCH, ASSETS, DEBUG | Main scene boots; one player verb works end to end |
 | 4 | 0.20 | First full loop | prototype | SYS, DEBUG, FEEL | Start → fail/win without developer intervention |
-| 5 | 0.25 | Data-driven foundations | prototype | ARCH, SYS, TOOL | Tunables live in `res://data/`, loaded through typed resources |
+| 5 | 0.25 | Data-driven foundations | prototype | ARCH, SYS, TOOL | Tunables live in `scripts/data/`, loaded through typed resources |
 | 6 | 0.30 | Feel pass 1 | prototype | FEEL, QA, DEBUG | A loop playtest produces no "feels laggy/unfair" note |
 | 7 | 0.35 | Slice scope lock | slice | STRUCT, NARR | Slice content list frozen and packet-ised |
 | 8 | 0.40 | Slice systems complete | slice | SYS, UIUX, DEBUG | Every slice system works with placeholder content |
@@ -225,12 +225,11 @@ but mostly idle at 0.20 and 0.95 — where it correctly falls to playtesting.
 evidence. Compute it from the **lowest** unpassed gate, never from optimism or elapsed time.
 If two gates disagree, the earlier one wins.
 
-**Advancing the stage** requires the gate's evidence, recorded in the state file and, where
-the gate is behavioral, a `PLAYTEST_LOG.md` entry. A stage may not advance on a claim
+**Advancing the stage** requires the gate's evidence, recorded in `ARENA_STATE.md` and, where
+the gate is behavioral, a `PLAYTEST_REPORT.md` entry. A stage may not advance on a claim
 alone. Regression is allowed and normal: if a later gate fails, move back and say so.
 
-**Job classes.** Full definitions, weights and confidence live in `tools/arena_router.py`
-(`CLASSES`) and are summarized in §4.3.
+**Job classes.** Full definitions, weights and confidence are summarized in §4.2–§4.3.
 
 ---
 
@@ -315,7 +314,7 @@ flowchart TD
     K -- "No" --> L["Drop candidate, record reason, try next"]
     L --> H
     J --> M["Claim exactly one packet in ARENA_STATE"]
-    M --> N["Execute with incremental verification per ARENA_README §9"]
+    M --> N["Execute with incremental verification per ARENA_README §5 / ARENA.md §L7"]
     O --> O1["Loop or fresh-eyes playtest, 5+ tagged observations, 3 ranked recommendations"]
     O1 --> O2["File every bug separately with repro and severity"]
     N --> P["Handoff: state, session log, PR, next-best packets"]
@@ -358,7 +357,7 @@ A packet may be split only along a **review seam**, never along an implementatio
 4. **Stage decides availability.** A packet whose class is not in the current stage's list is
    not available, however good the model is at it. (This is what keeps a strong `NARR` model
    from writing lore at stage 0.20 while the core loop does not run.)
-5. **The rung ladder still gates priority** (`ARENA_README.md` §7): a rung-1 blocker anywhere
+5. **The rung ladder still gates priority** (`ARENA_README.md` §4 / `ARENA.md` §L8): a rung-1 blocker anywhere
    in scope outranks a rung-2 packet, even if the model is better suited to the latter — but
    only if that model is ≥ Adequate at the blocker's class. Otherwise the blocker is
    *reported* and the model takes what it can do.
@@ -390,20 +389,19 @@ else had time to find, and its output is directly consumable by higher-graded mo
 
 1. **A session**, not an opinion. Choose by cost/time profile: cheap fast models (< $0.25,
    < 5 min) run **fresh-eyes** (15 min, no context); slower ones run a **loop** or
-   **adversarial** session (30 min). Protocol: `ARENA_README.md` §10.
+   **adversarial** session (30 min). Protocol: `ARENA_README.md` §6 / `ARENA.md` §L10.
 2. **≥ 5 tagged observations** — `bug` / `confusion` / `feel` / `content` — one line each,
    situation → observation → hypothesis separated.
 3. **Every obvious bug filed separately** with steps, expected, actual, evidence, severity.
 4. **3 ranked recommendations** on gameplay systems, narrative design or obvious bugs, each
    with a *why* and a rough effort (S/M/L). Recommendations are labeled as suggestions —
    you are not making the design decision.
-5. **A dated entry in `PLAYTEST_LOG.md`.** Read-only on code, scenes, resources, roadmap,
+5. **A dated entry in `PLAYTEST_REPORT.md` (and `ARENA_STATE.md`).** Read-only on code, scenes, resources, roadmap,
    and this document.
 
 ### 7.2 How often the fallback lane actually fires
 
-Measured across the whole roster for the 2026-10-23 snapshot. Generated by
-`arena_router.py --emit` and asserted by `--selftest`, like the stage table.
+Measured across the whole roster for the 2026-10-23 snapshot.
 
 <!-- BEGIN AUTO:fallback-pressure -->
 | Stage | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 |
@@ -446,8 +444,8 @@ move on.
 
 ## 8. Dispatch table (all 55 models)
 
-Generated from `docs/arena/leaderboard_2026-10-23.csv` by `tools/arena_router.py --emit`.
-Regenerate after every roster refresh; never hand-edit this section.
+Derived from the 2026-10-23 Arena.ai Agent Arena snapshot (55 models).
+Update this table after every roster refresh; only `Optimal`-at-`STRUCT` graders may edit this section.
 
 Column notes: **Optimal** lists classes where the model is top-7 of 55 for that job.
 **Do not assign** lists Inadequate classes. `*` = low-confidence class (no leaderboard
@@ -548,7 +546,7 @@ and Ledger text). Nemotron-3.5-Super-VL (5.1-point hallucination deficit).
 ---
 
 Six findings worth internalising, because they are the whole argument for replacing tiers.
-Every claim below is reproducible from `docs/arena/capability_matrix.csv`.
+Every claim below is reflected in the §8 dispatch table and §12 validation tables.
 
 1. **Only two models are Optimal across the whole engineering set.** `Claude Opus 5.5 (Max)`
    and `Claude Sonnet 5.5 (Max)` hold Optimal grades on ARCH, SYS, DEBUG, MIGR, TOOL and PERF
@@ -586,9 +584,9 @@ Every claim below is reproducible from `docs/arena/capability_matrix.csv`.
 
 ### 9.1 A cheap model at a production stage
 
-```console
-$ python3 tools/arena_router.py --model "Claude Haiku 5.5 (High)" --stage 0.60 \
-      --tasks "SYS:balance_matrix_run:2,NARR:ledger_headlines:5,ASSETS:equipment_icons:5"
+```text
+INPUT   model = "Claude Haiku 5.5 (High)", stage = 0.60
+        tasks = "SYS:balance_matrix_run:2,NARR:ledger_headlines:5,ASSETS:equipment_icons:5"
 MODEL   Claude Haiku 5.5 (High)  (#27, Anthropic, Proprietary)
 STAGE   12/20 · 0.60 · Content scale-up (production)
 GATE    Content count tracks the roadmap's milestone table.
@@ -601,7 +599,7 @@ ASSIGN  ASSETS — equipment_icons
 CLAIM   PACKET-<id> · ASSETS · rung 5 · model Claude Haiku 5.5 (High) · stage 12
 ```
 
-(The `GRADES` line is wrapped here for print width; the tool prints it on one line.)
+(The `GRADES` line is wrapped here for print width.)
 
 Read it as: three packets are open from The Violence's M2 Production milestone, the model is eligible for all three, and the grade decides which one to take. `ASSETS` is Optimal at $0.10 a task, so the equipment icon set is the job. `SYS` is only Competent and `NARR` only Adequate — both *assignable*, neither *first choice*, which is the distinction a tier system could not express: this model is not "the cheap tier", it is specifically the right owner of one class and a fallback owner of two others.
 
@@ -616,8 +614,8 @@ migration is a data-loss incident, not a bold call.
 
 ### 9.3 Fallback
 
-```console
-$ python3 tools/arena_router.py --model "Mistral Large 4" --stage 0.95
+```text
+INPUT   model = "Mistral Large 4", stage = 0.95
 ASSIGN  (no qualifying task) -> fallback lane
         PLAYTEST + SUGGESTIONS (QA Adequate, BUGREP Adequate): run a
         fresh-eyes (15 min) session, log >=5 tagged observations,
@@ -635,11 +633,8 @@ reason, so the next model to arrive sees which packets are still open.
 
 ### 9.4 Whole-field dispatch
 
-```console
-$ python3 tools/arena_router.py --stage 0.50 --all-models
-```
-
-Buckets every model by the class it would take at the vertical-slice gate — the fastest way
+Evaluating all 55 models at stage `0.50` buckets every model by the class it would take at
+the vertical-slice gate — the fastest way
 to see which stages starve which classes, and therefore where the roadmap is mis-shaped.
 For The Violence at stage 10, this shows that the current milestone (M1 Foundation) is
 TOOL-heavy (test infrastructure, CI) with SYS support (determinism coverage) — models
@@ -652,16 +647,13 @@ are the most valuable here.
 
 ### 10.1 Refresh cadence
 
-- **Quarterly**, and within one week of a new frontier model, re-pull
-  `https://arena.ai/leaderboard/agent` plus `/code`, `/chat`, `/work` (all four boards —
-  category tilt is load-bearing).
-- Replace `docs/arena/leaderboard_YYYY-MM-DD.csv` with a new dated file; never overwrite.
-- Run `python3 tools/arena_router.py --emit` and `--selftest`; commit all three artifacts
-  together, plus a line in the changelog below and an ADR if weights or bands changed.
-- Run `python3 tools/arena_router.py --audit`. It prints every factual claim in §8.1 with live
-  values. **If a printed line differs from the prose, fix the prose in the same PR** — the
-  numbers are generated, the sentences are not, and drifting prose is how a routing document
-  starts lying.
+- **Quarterly**, and within one week of a new frontier model, re-pull the Arena.ai Agent Arena
+  boards (Overall, Code, Chat, Work — all four boards, as category tilt is load-bearing).
+- Recompute the §8 dispatch table and §7.2 fallback-pressure table against the new snapshot,
+  and record the update in §10.4 Changelog.
+- Audit every factual claim in §8.2 and the six findings below §8.2 against the updated
+  table. **If any claim differs from the table, fix the prose in the same PR** — drifting
+  prose is how a routing document starts lying.
 
 ### 10.2 Data hygiene rules learned the hard way
 
@@ -673,10 +665,9 @@ are the most valuable here.
   rank #55 appears to lead the board on confirmed success (29.37) and shell reliability
   (42.70) while being ranked last, and rank #42 appears to hold an 18% *good* tool-hallucination
   score. Arena's own "signal leaders" text contradicts all three.
-  **Reconstruction:** values on rows below the zero crossing are negative. The
-  `net_polarity_guess` column records the inference and `signed()` in `tools/arena_router.py`
-  applies it. Verify after every refresh by checking that each signal-leader top-10 name
-  matches a row with a positive reconstructed value.
+  **Reconstruction:** values on rows below the zero crossing are negative. Verify after
+  every refresh by checking that each signal-leader top-10 name matches a row with a
+  positive reconstructed value.
 - **Score on ranks and percentiles, never on raw magnitudes.** Ranks are sign-safe; that is
   why the router's features are ranks and within-field percentiles.
 - **Never infer a model's row from its rank.** Copy the row.
@@ -694,29 +685,26 @@ contradict a grade, the session log wins:
 
 1. Append to `ARENA_STATE.md` → `## Grade overrides`:
    `Claude X · MIGR · Optimal→Competent · 2 save migrations shipped with regressions · 2026-11-02`.
-2. Apply it with `--override MIGR=Competent` until the next roster refresh bakes it in.
+2. Apply the override in session routing until the next roster refresh bakes it in.
 3. Two independent contradicting sessions with no contradicting evidence promote/relegate a
    grade. One session is an anecdote; three is a pattern.
 4. Never override `STRUCT` or `MIGR` *upward* without an `Optimal` grader's review — those
    two classes carry the highest blast radius.
 5. **Published evidence is not a session log, but it is still evidence.** Prior corrections
-   from vendor self-assessments and community reports live in `EVIDENCE` in
-   `tools/arena_router.py`, not in the CSV and not in prose. Each row carries an `asof` date,
-   at least two independent sources, and a hard cap of a one-level raise. `--evidence` prints
-   the register, what it changed, and what it left alone; `--audit` prints it again on every
-   refresh so a stale row is visible rather than inherited. Delete the row to retire a
-   correction — never edit the grade table.
+   from vendor self-assessments and community reports are recorded in §12.4 below. Each
+   row carries its sources and a hard cap of a one-level raise. Review §12.4 on every
+   refresh so stale corrections remain visible rather than silently inherited.
 6. **`NOT_DISPATCHABLE` is a routing fact too.** A subscription-only model can be graded but
-   cannot take a work packet; the router says so in `describe()` and marks it in §8.
+   cannot take a work packet; it is marked `"no public API"` in §8.
 
 ### 10.4 Changelog
 
 | Date | Change | ADR |
 |---|---|---|
 | 2026-10-25 | The Violence dispatch priorities (§8.2): per-milestone model recommendations for this game's specific class needs. Stage-to-milestone mapping (§0.5). Worked examples (§9) updated with game-specific packets. | — |
-| 2026-10-25 | Per-model routing replaces tier-band routing. Snapshot 2026-10-23, 55 models, 16 job classes, 20 stages. | `docs/adr/0001-per-model-routing.md` |
-| 2026-10-25 | Creative writing lane (§13): competence × censorship parallel list in `ARENA_CREATIVE_WRITING.md`. | — |
-| 2026-10-25 | External validation (§12): vendor self-assessments + community evidence. 7 grade cells corrected via `EVIDENCE`; rules 9–10 added to §6; Muse Wonder Full flagged non-dispatchable; `--evidence` added. | — |
+| 2026-10-25 | Per-model routing replaces tier-band routing. Snapshot 2026-10-23, 55 models, 16 job classes, 20 stages. | — |
+| 2026-10-25 | Creative writing lane (§13): competence × censorship guidance in `ARENA_CREATIVE_WRITING.md`. | — |
+| 2026-10-25 | External validation (§12): vendor self-assessments + community evidence. 7 grade cells corrected (§12.4); rules 9–10 added to §6; Muse Wonder Full flagged non-dispatchable. | — |
 
 ---
 
@@ -724,7 +712,7 @@ contradict a grade, the session log wins:
 
 **Source.** Arena.ai Agent Arena, all four category boards, snapshot dated **2026-10-23**:
 Overall (2,557,423 sessions), Code (845,980), Chat (851,360), Work (1,490,872); 55 models
-listed. Full transcription in `docs/arena/leaderboard_2026-10-23.csv`.
+listed, summarized in §8.
 
 **Signals used.** Net improvement, confirmed success, praise vs complaint, steerability,
 shell-command reliability, tool hallucination, sessions, cost per task (P50), wall-clock per
@@ -734,8 +722,7 @@ benchmarks, which is why they transfer better to agent work than a leaderboard E
 **A decoding caveat that shapes everything above.** All six percentage columns are signed
 deviations from the field average with lossy minus signs (§10.2). The router treats the
 published numbers as magnitudes and reconstructs sign from board ordering, then scores on
-ranks and percentiles. If a future snapshot preserves signs properly, drop `net_polarity_guess`
-and the `signed()` shim — but verify the signal-leader lists first.
+ranks and percentiles.
 
 **What this data does not measure**, and where the router is therefore weakest:
 
@@ -744,7 +731,7 @@ and the `signed()` shim — but verify the signal-leader lists first.
    work, cost for iteration volume). Treat first deliverables in these classes as probes.
 2. **Godot-specific competence.** Arena measures general agentic work. A model that is
    Optimal at `SYS` may still not know `TileMapLayer` replaced `TileMap`; the engineering
-   standards in `ARENA_README.md` §8 and the verification ladder exist to catch exactly that.
+   standards in `ARENA.md` §L5 and the verification ladder (`ARENA.md` §L7) exist to catch exactly that.
 3. **Long-horizon multi-session memory.** Steerability is the closest proxy and it is
    measured within a session. Multi-session coherence is covered by the handoff protocol,
    not by the grade.
@@ -795,8 +782,7 @@ benchmark table:
 Two consequences that shaped the edits below: vendor *rankings* never raise a grade (Mistral's
 own "best at cyber" line is the counter-example — it comes from refusal rates, not capability),
 and a raise is capped at **one level** above what the leaderboard computed, because the
-leaderboard remains the prior. Every correction is a row in `EVIDENCE` in
-`tools/arena_router.py`, carries its sources and a date, and is printed by `--evidence`.
+leaderboard remains the prior. Every correction is recorded in §12.4 below with its sources.
 
 ### 12.2 What each lab says its own model is for
 
@@ -837,8 +823,8 @@ leaderboard remains the prior. Every correction is a row in `EVIDENCE` in
 
 ### 12.4 Corrections actually applied
 
-Seven grade cells moved. `--evidence` prints this table with sources; `computed` retains what
-the leaderboard alone said, so any of them can be retired by deleting the `EVIDENCE` row.
+Seven grade cells moved. The table below records both the computed prior (`Was`) and the
+validated grade (`Now`), so any correction can be retired if later sessions contradict it.
 
 | Model | Class | Was | Now | Why |
 |---|---|---|---|---|

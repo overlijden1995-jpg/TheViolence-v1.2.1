@@ -95,8 +95,8 @@ Version 1.0 is a build that:
 |---|---|---|---|---|
 | 1.32 | Activate CI workflow | TOOL | `tools/ci/ci.yml` → `.github/workflows/ci.yml` | `git mv`; workflow triggers on PR; green on both 4.4.1 and 4.7.2 |
 | 1.33 | Make `--quick` tier required on `main` | TOOL | `.github/workflows/ci.yml` | Branch protection rule requires the quick-tier job |
-| 1.34 | Run `perf.gd` on largest map and record baseline | PERF | `tests/perf.gd`, `scripts/maps/m11_plaza.gd` | Frame time, draw calls, node count recorded in ARENA_STATE.md for future regression comparison |
-| 1.35 | Verify Windows build on real hardware | QA | `release/TheViolence.exe` | Boot, play one week, save, reload, alt-tab, resize, quit — on actual Windows 10/11; results recorded |
+| 1.34 | Run `tests/perf.gd` on largest map and record baseline | PERF | `tests/perf.gd`, `scripts/maps/m11_plaza.gd` | Frame time, draw calls, node count recorded in `ARENA_STATE.md` for future regression comparison |
+| 1.35 | Verify Windows build on real hardware | QA | `RELEASE.md`, `tools/build_windows_exe.sh` | Build `release/TheViolence.exe` (git-ignored), then boot, play one week, save, reload, alt-tab, resize, quit — on actual Windows 10/11; results recorded |
 | 1.36 | Confirm Remotion license position | STRUCT | `cinematics/package.json` | Document whether rendered .ogv cutscenes are covered; resolve if commercial use requires paid license |
 
 **Exit criteria:** `tools/run_tests.sh --soak` green on a multi-core machine. Balance table complete (11 cells filled). CI green on both engines. One real Windows playtest logged. All 18 harnesses have exit codes. Determinism fixture covers Q1/Q3/Q6 paths.
@@ -134,9 +134,9 @@ Version 1.0 is a build that:
 
 | ID | Task | Class | Scope | Acceptance |
 |---|---|---|---|---|
-| 2.12 | Rebuild Windows exe from current source | TOOL | `tools/build_windows_exe.sh`, `release/` | `inspect_pck.py --verify` clean; `inspect_exe.py` clean; under 100MB |
+| 2.12 | Rebuild Windows exe from current source | TOOL | `tools/build_windows_exe.sh`, `release/` | `tools/inspect_pck.py --verify` clean; `tools/inspect_exe.py` clean; under 100MB |
 | 2.13 | Verify pack contents match source tree | TOOL | `tools/inspect_pck.py` | All 498+ files MD5-verified; no stale scripts; all 12 maps present |
-| 2.14 | Test Windows build on real hardware (full session) | QA | `release/TheViolence.exe` | 30+ minute playtest: boot, new campaign, week 1–3, save/reload, test range, endless battle, settings change, quit |
+| 2.14 | Test Windows build on real hardware (full session) | QA | `RELEASE.md`, `tools/build_windows_exe.sh` | 30+ minute playtest of built `release/TheViolence.exe`: boot, new campaign, week 1–3, save/reload, test range, endless battle, settings change, quit |
 | 2.15 | Choose code-signing or storefront distribution | STRUCT | documented decision | OV/EV cert acquired, OR itch.io/Steam chosen with account created; SmartScreen strategy documented |
 | 2.16 | Add Windows build to `.gitignore` for source repo | TOOL | `.gitignore` | `release/*.exe` excluded; documented in RELEASE.md how to rebuild |
 
@@ -184,7 +184,7 @@ Version 1.0 is a build that:
 | 3.03 | Compose operation ambient bed | ASSETS/AUDIO | `assets/audio/music/operation.ogg` (new) | Loopable tension bed; plays during RUN; ducks under radio and gunfire |
 | 3.04 | Compose election-night stinger | ASSETS/AUDIO | `assets/audio/music/election.ogg` (new) | 15–30 second piece for the election results screen |
 | 3.05 | Compose debrief stinger (success/cost/failure variants) | ASSETS/AUDIO | `assets/audio/music/debrief_*.ogg` (new) | Three short stingers (3–8s) matching the three debrief outcomes |
-| 3.06 | Add Music bus to audio layout | SYS | `default_bus_layout.tres`, `scripts/view/sound.gd` | Named `Music` bus; Settings gains Music volume slider; all music routed through it |
+| 3.06 | Add Music bus to audio layout | SYS | `scripts/ui/settings.gd`, `scripts/view/sound.gd` | Named `Music` bus registered alongside `Effects` and `Ambience`; Settings gains Music volume slider; all music routed through it |
 | 3.07 | Integrate music into game flow | SYS | `scripts/main.gd`, `scripts/view/sound.gd` | Title theme on title screen; board ambient on operations board; operation bed during RUN; crossfade on transitions; no overlap |
 | 3.08 | Loudness-normalize all music to match SFX levels | AUDIO | `assets/audio/music/` | No 20dB jumps between music and SFX; verified by ear and meter |
 
@@ -203,9 +203,9 @@ Version 1.0 is a build that:
 
 | ID | Task | Class | Scope | Acceptance |
 |---|---|---|---|---|
-| 3.15 | Conduct fresh-eyes playtest #1 | QA | `PLAYTEST_LOG.md` | 3+ people who have never seen the game play for 15 minutes; observations cataloged |
-| 3.16 | Conduct fresh-eyes playtest #2 | QA | `PLAYTEST_LOG.md` | Different 3+ people; different observations; pattern comparison |
-| 3.17 | Conduct fresh-eyes playtest #3 | QA | `PLAYTEST_LOG.md` | Third group; top-5 cross-session confusion points identified |
+| 3.15 | Conduct fresh-eyes playtest #1 | QA | `PLAYTEST_REPORT.md` | 3+ people who have never seen the game play for 15 minutes; observations cataloged |
+| 3.16 | Conduct fresh-eyes playtest #2 | QA | `PLAYTEST_REPORT.md` | Different 3+ people; different observations; pattern comparison |
+| 3.17 | Conduct fresh-eyes playtest #3 | QA | `PLAYTEST_REPORT.md` | Third group; top-5 cross-session confusion points identified |
 | 3.18 | Address top-5 onboarding confusion points | SYS/UIUX | varies | Each confusion point from 3.15–3.17 gets a specific fix (UI text, tooltip, guide card, or flow change); documented in CHANGELOG |
 | 3.19 | Add rally-reset visibility to debrief | SYS/UIUX | `scripts/campaign/outcome.gd`, `scripts/ui/ops_ui.gd` | Debrief shows "Rally: N seconds of quiet recovered M stress" when applicable; makes Q1 mechanic visible |
 | 3.20 | Add statement-integrity visibility to IA screen | SYS/UIUX | `scripts/campaign/department.gd`, `scripts/ui/ops_ui.gd` | IA case shows "Statement: HELD / CONTRADICTED bodycam" when applicable; makes Q3 mechanic visible |
@@ -286,8 +286,8 @@ Version 1.0 is a build that:
 | 5.03 | Create feature request template | DOCS | `.github/ISSUE_TEMPLATE/feature_request.md` (new) | Fields: description, why, which game mode it affects |
 | 5.04 | Test save migration from v0.50 to v1.0.0 | MIGR/SYS | `scripts/campaign/save_file.gd`, `tests/save_test.gd` | v0.50 saves load cleanly under v1.0.0; migration code tested; test asserts round-trip |
 | 5.05 | Run full regression suite one final time | QA | `tools/run_tests.sh --soak` | All tiers green; balance matrix cells unchanged from M1 values; no new regressions |
-| 5.06 | Final Windows build from release-ready source | TOOL | `tools/build_windows_exe.sh` | Rebuilt; `inspect_pck.py --verify` clean; `inspect_exe.py` clean; SHA-256 recorded |
-| 5.07 | Final Windows hardware test | QA | `release/TheViolence.exe` | Full playtest on Windows: boot, campaign weeks 1–3, save/reload, test range, endless, settings, quit |
+| 5.06 | Final Windows build from release-ready source | TOOL | `tools/build_windows_exe.sh` | Rebuilt; `tools/inspect_pck.py --verify` clean; `tools/inspect_exe.py` clean; SHA-256 recorded |
+| 5.07 | Final Windows hardware test | QA | `RELEASE.md`, `tools/build_windows_exe.sh` | Full playtest of built Windows binary: boot, campaign weeks 1–3, save/reload, test range, endless, settings, quit |
 | 5.08 | Code-sign or confirm storefront distribution | TOOL/STRUCT | documented | Signed binary, OR itch.io/Steam page live with unsigned binary and SmartScreen warning explained |
 
 ### Platform Submission

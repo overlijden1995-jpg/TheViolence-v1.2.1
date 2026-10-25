@@ -54,5 +54,5 @@ All diagnostic passages are **original prose written for this project**, not quo
 They are pastiche in the technical sense: writing under a voice's constraints. They exist to show the
 mechanism, not to substitute for the source.
 
-See [`../05-voice-recipes.md`](../05-voice-recipes.md) for the modular version of these recipes and
-[`../08-sources-and-glossary.md`](../08-sources-and-glossary.md) for the evidence base.
+See [`05-voice-recipes.md`](05-voice-recipes.md) for the modular version of these recipes and
+[`08-sources-and-glossary.md`](08-sources-and-glossary.md) for the evidence base.

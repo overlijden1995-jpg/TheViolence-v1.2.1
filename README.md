@@ -85,7 +85,7 @@ tools/run_tests.sh --soak      # + the asserted balance matrix (long)
 GODOT=/path/to/godot tools/run_tests.sh --full
 ```
 
-The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes `build/test-logs/<suite>.log`. The same tiers run in CI (`tools/ci/ci.yml` — move it to `.github/workflows/ci.yml` to activate it) on 4.7.2 and on 4.4.1.
+The runner exits non-zero if any suite fails, scans the logs of the harnesses that do not set an exit code, and writes per-suite log files when executed. A GitHub Actions workflow template for these tiers on 4.7.2 and 4.4.1 is kept at `tools/ci/ci.yml` (CI is not yet active in this repository).
 
 Run individual suites when debugging:
 
@@ -135,19 +135,19 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 | Animated figures | Complete — rigged paper-silhouette system |
 | Opening cutscenes (4 films) | Complete |
 | Short interstitials (14 rendered) | 4 of 14 wired to gameplay |
-| Test harnesses (36 files) | 18 cannot exit non-zero (known gap) |
-| Windows build | Exists (88 MiB), unsigned, not tested on real hardware |
+| Test harnesses (34 runnable + 2 visual scenes in `tests/`) | 18 of 34 cannot exit non-zero (known gap) |
+| Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned and untested on Windows hardware) |
 | Music / score | **Missing** |
 | Accessibility | **Minimal** (red-ink/gore toggles only) |
 | Localization | **Not started** |
 | Balance matrix (11 cells) | **Empty** — measured bands not yet filled in |
-| CI pipeline | **Not activated** |
+| CI pipeline | **Not activated** (`tools/ci/ci.yml` template only) |
 | License | **None declared** |
 
 See `Arena Protocols/ROADMAP.md` for the milestone plan from 0.50 to 1.0, and `RELEASE_READINESS.md` for the full technical assessment.
 
 ## Windows build
 
-A compact single-file Windows prototype is documented in `RELEASE.md` (88 MiB, Godot 4.4.1, self-contained). Rebuild with `tools/build_windows_exe.sh`. This build is unsigned and has not been tested on Windows hardware — it is a candidate, not a release.
+A compact single-file Windows prototype is documented in `RELEASE.md` and `release/README.md` (88 MiB, Godot 4.4.1, self-contained). The executable binary is git-ignored and not checked into the repository; build it locally with `tools/build_windows_exe.sh`. This build is unsigned and has not been tested on Windows hardware — it is a candidate, not a release.
 
 See `CHANGELOG.md` for detailed version history and the in-game **How to play** pages for the full mechanics reference.
