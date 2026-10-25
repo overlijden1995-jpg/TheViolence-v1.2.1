@@ -1,113 +1,99 @@
-# The Violence v1.2.1 — Windows release
+# The Violence — compact Windows prototype
 
 ```
-release/TheViolence.exe      107 MiB      one file, nothing beside it
+release/TheViolence.exe      92,308,944 bytes      88.0 MiB      one file
 ```
 
-Double-click it, or run `Play.bat`. There is no installer, no Godot install, no
-`data.pck`, no DLLs to copy, no runtime to download. The engine, the compiled
-GDScript, every SVG, every sound and all eighteen cutscene videos are inside
-that one file.
+This is a self-contained Windows build of the full prototype: campaign/story,
+Test Range, and Endless Battle are included. The engine and embedded game pack
+are in the executable; there is no sidecar `.pck`, installer, Godot install, or
+DLL bundle. It is **7,691,056 bytes below GitHub's 100,000,000-byte per-file
+limit**.
 
 - **Machine:** x86-64, Windows GUI subsystem
 - **Runs on:** Windows 10 and 11 (64-bit). The renderer is `gl_compatibility`,
   so the machine needs an OpenGL 3.3 driver — Intel HD 4000 and newer, any
   AMD/NVIDIA card from the last decade.
-- **Imports:** 33 libraries, every one of them a stock Windows DLL
-  (`kernel32`, `user32`, `gdi32`, `dwrite`, `avrt`, the UCRT forwarders…).
-  Nothing is loaded from the game folder. `tools/inspect_exe.py` prints the list.
-- **Unsigned.** SmartScreen will show "Windows protected your PC" on first run
-  until the exe is code-signed; *More info → Run anyway* starts it.
+- **Imports:** 33 libraries, every one a stock Windows DLL. `tools/inspect_exe.py`
+  prints the list.
+- **Unsigned and not yet exercised on Windows hardware.** SmartScreen may warn
+  on first run; the Linux build host cannot verify Windows startup behavior.
 
 ## What is in it
 
-`tools/inspect_pck.py release/TheViolence.exe --verify` reads the pack back out
-of the executable, without Godot, and checks every file against its stored MD5:
+`tools/inspect_pck.py release/TheViolence.exe --verify` reads the embedded pack
+without Godot and checks every file against its stored MD5:
 
 | | |
 | --- | --- |
 | files | 498 |
-| payload | 42.8 MiB |
+| payload | 23.9 MiB |
 | verified | all files match |
 | textures (`*.ctex`) | 124 |
 | sounds (`*.sample`) | 34 |
-| cutscenes (`*.ogv`) | 18 |
-| compiled scripts (`*.gdc`) | 76 |
+| cutscenes (`*.ogv`) | 8 |
+| compiled scripts (`*.gdc`) | 81 |
 
-The pack is written into the PE `pck` section, so the game data sits inside the
-image rather than trailing the file; both the section and the end-of-file
-trailer resolve. `tests/`, `tools/`, the markdown sources and the Remotion
-sources under `cinematics/` are excluded by the preset's `exclude_filter`.
+The pack is embedded in the PE's `pck` section. The four opening films and the
+four shorts currently wired into campaign play (`s06`, `s09`, `s11`, `s12`) are
+included. The other ten shorts remain in the source tree but are excluded from
+both release presets: they do not currently have gameplay triggers. Gameplay,
+all three modes, and campaign outcomes are unchanged.
 
-## How it was built
+The eight included Ogg Theora videos were re-encoded at quality 4 while keeping
+their 1280×720 frame size, frame rate, duration, and Vorbis audio. The cinematic
+source scripts now use the same quality setting for future renders. The ten
+excluded shorts were left untouched in the source.
 
-The environment this was produced in cannot reach `github.com` release assets,
-so the Godot editor and the official Windows export template could not simply be
-downloaded. `tools/build_windows_exe.sh` builds both from the engine source
-instead:
+`tests/`, `tools/`, markdown sources, and the Remotion sources under
+`cinematics/` are not in the pack.
 
-1. **Engine source** — `godotengine/godot` 4.4.1-stable (the version
-   `project.godot` targets) via `codeload.github.com`.
-2. **Headless Linux editor** — `scons platform=linuxbsd target=editor
-   x11=no wayland=no alsa=no pulseaudio=no dbus=no ... lto=none`. About 46
-   minutes on two cores; it is only used to run the export.
-3. **Windows export template** — `scons platform=windows target=template_release
-   tools=no arch=x86_64 vulkan=no d3d12=no opengl3=yes lto=none`,
-   cross-compiled with zig's bundled clang + mingw-w64 sysroot
-   (`pip install ziglang`). No MinGW installation, no apt packages.
-4. **Branding compiled in, not patched on** — `tools/patch_rc.py` writes the
-   game's icon (`icon.ico`, seven sizes) and its version block
-   (`The Violence 1.2.1.0`) into `platform/windows/godot_res.rc` before the
-   template is linked, so no rcedit pass is needed at export time.
-5. **Export** — the editor imports the project and runs
-   `--export-release "Windows Desktop" release/TheViolence.exe` with the
-   preset's `binary_format/embed_pck=true`, which appends the pack.
+## Build and repeat
 
-Reproduce with:
+The build host cannot use the official GitHub-hosted Godot release templates,
+so `tools/build_windows_exe.sh` builds the Godot editor and Windows template
+from Godot 4.4.1 source. The template is branded with the game's icon/version,
+then exported with `binary_format/embed_pck=true`.
 
 ```sh
-tools/build_windows_exe.sh            # ~90 minutes on two cores
-JOBS=8 tools/build_windows_exe.sh     # on a real machine
+JOBS=2 tools/build_windows_exe.sh
 ```
 
-Requires `python3` (for `venv`), `curl`, `tar` and a C/C++ toolchain for the
-editor build. Everything else is installed into `.build/` (git-ignored).
+The script pins SCons 4.8.1 and Zig 0.13.0, verifies the embedded pack, and
+fails if the finished executable is 100,000,000 bytes or larger. Requires
+Python 3, `curl`, `tar`, and a C/C++ toolchain for the Linux editor; build
+artifacts and downloaded toolchains stay in ignored `.build/`.
 
-## Verification done here
+The checked-in Oggs are already the compact release encodes. To regenerate
+cinematics from the Remotion MP4 masters, use `cinematics/scripts/to_game.sh`
+and `cinematics/scripts/to_game-shorts.sh`; both now default to Theora quality
+4.
 
-- `tools/inspect_exe.py` — PE machine, subsystem, section list, import table,
-  resource types (`RT_ICON`, `RT_GROUP_ICON`, `RT_VERSION`, `RT_MANIFEST`).
-- `tools/inspect_pck.py --verify` — 498 files, every MD5 matches, no test or
-  documentation paths.
-- The exported pack was extracted from the exe and run with a Godot 4.4.1
-  runtime: `godot --headless --main-pack theviolence.pck --quit-after 600`
-  boots the game and runs 600 frames with no script errors — the same pack the
-  Windows binary loads.
-- `tests/_check.gd` loads every script in the project: clean.
+## Verification performed
 
-**Not** verified here: an actual run on Windows hardware — the build host is
-Linux and no Windows machine or emulator is available. The engine layer is the
-only untested part; the game data that boots is byte-identical to the pack that
-was exercised above.
+- `tools/inspect_exe.py release/TheViolence.exe` — x86-64 GUI PE, embedded pack,
+  icon/version resources, and only stock Windows imports.
+- `tools/inspect_pck.py release/TheViolence.exe --verify` — 498 files, every
+  MD5 matches; all ten unwired shorts are absent and all eight retained videos
+  are present.
+- Extracted the embedded pack and ran it with the Godot 4.4.1 Linux editor
+  (`--headless --main-pack ... --quit-after 600`) with no script errors.
+- Headless project boot — 600 frames, no script errors.
+- `tools/run_tests.sh --quick` on Godot 4.4.1 — **11/11 suites passed**.
+
+An actual run on Windows hardware is still needed before calling this a tested
+Windows release. This is a playable prototype build, not a signed release.
 
 ## Where the file lives
 
-`release/TheViolence.exe` is in this working tree but is **not committed**: GitHub
-refuses any file larger than 100 MB, and this one is 107 MiB, so committing it
-would make the branch unpushable. Publish it as a GitHub Release asset (or move
-it to Git LFS) rather than into the tree — `release/*` is git-ignored for that
-reason.
+`release/TheViolence.exe` is generated locally and remains git-ignored to keep
+binary builds out of source history. It is below GitHub's ordinary 100 MB file
+limit, but a GitHub Release asset is still the cleaner distribution channel.
+Rebuild it with `tools/build_windows_exe.sh`.
 
-## Checksums
+## Checksum
 
 ```
-112,632,384 bytes
-SHA-256  4f6b946b1e81e1697f4eaf51844c54e2c1b272406d27ea288d354f4eaa5cbdf8
+92,308,944 bytes
+SHA-256  2001da5e0bc20f18c99ad63bfb28f9b4f6bd90ca105b963657e2b16f58c51bb2
 ```
-
-Exporting twice from the same tree produced byte-identical files.
-
-One warning is expected and harmless: *"Resources Modification: Could not start
-rcedit executable"*. rcedit is a Windows-only icon/version patcher; this build
-does not need it because the icon and version block are already compiled into
-the template (step 4 above).

@@ -23,10 +23,12 @@ from source in the sandbox and ran them: the quick tier is green, the determinis
 fixture is intact, and **three boot-path defects, a text bug and a wrong statistic fell out
 immediately** (§7) — which is the argument for doing this before
 shipping. There was no CI and no test runner, roughly half the
-harnesses cannot fail a build even when they fail, and the only Windows binary is
-107 MiB, unsigned, and built from older sources on a different engine than the
-project now declares. The path to releasable is short and unglamorous: **run the suites,
-fix what they find, put that in CI, then rebuild and sign the thing.**
+harnesses cannot fail a build even when they fail. The previously published
+Windows binary is 107 MiB, unsigned, and built from older sources; this tree now
+also has an 88.0 MiB compact prototype candidate (`RELEASE.md`). The candidate
+still needs a real Windows hardware run and signing before it is a tested
+release. The remaining work is unglamorous: **run the platform checks, finish
+the outstanding balance verification, and sign the thing.**
 
 ---
 
@@ -43,7 +45,7 @@ fix what they find, put that in CI, then rebuild and sign the thing.**
 | Content | 89 habit IDs, 34 equipment items, 7 courses, 6 echelons, 6 situation types, 6 wards, 4 allies, 3 candidates |
 | Rooms per map | 175 doors across the 12 maps (`tests/nav_door_test.gd` reports the count) |
 | Campaign | 40 weeks, then an election (`scripts/campaign/politics.gd`) |
-| Video | 18 Ogg Theora files: 4 opening films + 14 shorts, 42.6 MB — 96% of the shipped payload |
+| Video | 18 Ogg Theora source files, 31.4 MB: 4 opening films + 14 shorts. The compact candidate ships the 4 openings + 4 wired shorts; 10 unwired shorts are excluded from export. |
 
 ### What has shipped and what is sitting on the branch
 
@@ -108,10 +110,10 @@ give every harness an exit code** — the log scan is a net, not a fix.
 
 ### P0-3 — The Windows binary is unsigned and older than the source
 
-- 107 MiB, x86-64, GUI subsystem, no installer, no DLLs, no side-car `.pck` (`RELEASE.md`).
-- **Unsigned**: SmartScreen shows "Windows protected your PC" on first run. For a paid product that is a conversion killer; for an itch.io demo it is survivable but should be explained on the page.
-- It embeds a pack that predates the 4.7.2 pass *and* the earlier unparseable-script incident described in the changelog. It must be rebuilt regardless.
-- The build path is heavy: `tools/build_windows_exe.sh` compiles Godot 4.4.1 and the Windows export template from source (~90 minutes on two cores) because the build environment could not reach GitHub releases. On a normal machine, use the official export templates and cut the build to minutes.
+- The original published build was 107 MiB. The current compact candidate is **92,308,944 bytes (88.0 MiB)**, x86-64, GUI subsystem, no installer, no DLLs, no side-car `.pck` (`RELEASE.md`).
+- **Unsigned**: SmartScreen may show "Windows protected your PC" on first run. Signing and a genuine Windows 10/11 startup/play test remain release blockers.
+- The new candidate is built from this tree with Godot 4.4.1; its embedded pack verifies and boots under the 4.4.1 Linux editor. A Windows-hardware run and export-path verification under the project's primary Godot 4.7.2 version remain outstanding.
+- The build path compiles the editor and Windows template from source because the host cannot fetch the official release assets. Zig is pinned to 0.13.0; rebuild with `tools/build_windows_exe.sh`.
 
 ### P0-4 — There is no licence and no third-party notice
 
@@ -140,7 +142,7 @@ manual is now 8 clean pages and mentions the new Less-lethal-first order.
 
 | # | Gap | Evidence | Why it matters |
 |---|---|---|---|
-| 1 | **10 of 14 interstitial videos are never played** | `play_short`/`play_consequence_short` are called only for `s06`, `s09`, `s11`, `s12` (`main.gd:1001-1014`, `ops_ui.gd:278`); the other ten ship **8.6 MB** that no player can reach | Either wire the remaining ten (the beats are named in `cinematics/SHORTS.md`) or drop them from the export for a smaller download. Half-shipped is the worst option. |
+| 1 | **10 of 14 interstitial videos have no current gameplay trigger** | `play_short`/`play_consequence_short` are called only for `s06`, `s09`, `s11`, `s12` (`main.gd:1001-1014`, `ops_ui.gd:278`). The remaining **8.6 MB** stays in source but is excluded from the compact export presets. | The compact build no longer pays to ship unreachable clips. Wire the remaining beats before adding them back to a release export. |
 | 2 | **No music** | `view/sound.gd` has ambience beds and 34 synthesised SFX, no score | A grid of 40 weeks with no score reads as unfinished; even one loop per screen changes the perceived production value. |
 | 3 | **Balance is asserted for one matchup only** | `balance_test.gd` gates equal regulars 5v5 on 4 houses; the 11-cell matrix in `balance_matrix_test.gd` has empty actuals | The game ships 12 maps and 6 echelons. Until the matrix runs, "the balance is measured" covers ~⅓ of the surface. |
 | 4 | **Onboarding rests on a suggestion button** | `campaign/autoplan.gd` can play a full 40 weeks (`op_test.gd --chief=sensible`); Veteran mode removes it | The player's only expression is planning. The Q4 reservation work narrows what the suggestion knows — prove it with the `--chief=manual` comparison before shipping the claim. |
