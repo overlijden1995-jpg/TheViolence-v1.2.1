@@ -1,0 +1,16 @@
+# itch.io manifest for The Violence (used by butler and the itch.io desktop app)
+
+[[actions]]
+name = "play"
+path = "TheViolence.exe"
+platform = "windows"
+sandbox = false
+
+[[actions]]
+name = "play"
+path = "TheViolence.x86_64"
+platform = "linux"
+sandbox = false
+
+[[prereqs]]
+name = "vcredist-2019-x64"

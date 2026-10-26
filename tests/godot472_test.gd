@@ -46,8 +46,10 @@ func _test_version_sync() -> void:
 	var project := FileAccess.get_file_as_string("res://project.godot")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	check(project.contains("config/version=\"%s\"" % Version.VALUE), "project version follows Version.VALUE")
+	check(Version.WINDOWS.split(".").size() == 4, "Version.WINDOWS uses 4-part X.Y.Z.0 format")
 	check(presets.contains("application/file_version=\"%s\"" % Version.WINDOWS), "export file version follows Version.WINDOWS")
 	check(presets.contains("application/product_version=\"%s\"" % Version.WINDOWS), "export product version follows Version.WINDOWS")
+	check(presets.contains("export_path=\"release/TheViolence.exe\"") and presets.contains("export_path=\"release/TheViolence.x86_64\""), "export_presets.cfg defines Windows and Linux release paths")
 
 
 ## Every one of these used to be `d["key"]`, which throws on an incomplete save.

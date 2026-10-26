@@ -14,9 +14,9 @@
     "sheet": "node scripts/sheet.mjs"
   },
   "dependencies": {
-    "@fontsource/courier-prime": "^5.2.8",
-    "@fontsource/open-sans": "^5.2.7",
-    "@fontsource/oswald": "^5.2.8",
+    "@fontsource/courier-prime": "5.2.8",
+    "@fontsource/open-sans": "5.2.7",
+    "@fontsource/oswald": "5.2.8",
     "@remotion/bundler": "4.0.537",
     "@remotion/cli": "4.0.537",
     "@remotion/renderer": "4.0.537",

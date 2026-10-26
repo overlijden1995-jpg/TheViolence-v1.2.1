@@ -2,6 +2,52 @@
 
 Newest first. The README covers the game as it stands; this file keeps the history.
 
+## v0.70 — Milestone 2: Clean Ship ("Clean the house")
+
+Completes Milestone 2 (`0.60 → 0.70`) of `ROADMAP.md` (packaging, multi-platform
+release builder, checksum manifests, signing & storefront configs, and
+reproducibility verification):
+
+- **4-part Windows version normalization (`2.10`).** `scripts/version.gd`
+  (`Version.WINDOWS := "0.70.0.0"`) and `tools/sync_version.py` now normalize any
+  2- or 3-component `Version.VALUE` into a strict 4-part `X.Y.Z.0` Windows PE
+  version string across `scripts/version.gd`, `export_presets.cfg`, and
+  `tools/patch_rc.py`.
+- **Export preset hardening & `.gitignore` expansion (`2.05`, `2.08–2.09`).**
+  Expanded `.gitignore` to block `.RData`, `.Rhistory`, `.DS_Store`, `Thumbs.db`,
+  `*.swp`, `*.bak`, and `cinematics/node_modules/`. Updated both `Windows Desktop`
+  (`release/TheViolence.exe`) and `Linux` (`release/TheViolence.x86_64`) presets
+  in `export_presets.cfg` to exclude `tests/*`, `tools/*`, `build/*`,
+  `cinematics/*`, `docs/*`, `*.md`, `*.py`, `*.sh`, `*.bat`, `.itch.toml`, and
+  `assets/*/manifest.json` alongside the 10 unwired short cutscenes.
+- **Unified multi-platform release builder & SHA-256 manifest (`2.11–2.12`).**
+  Added `tools/build_release.sh` supporting `--target=windows|linux|all`,
+  `--godot-tag=4.7.2-stable|4.4.1-stable`, `--write-sums`, and `--verify-sums`.
+  Automatically runs pre-flight checks (`sync_version.py --check`,
+  `make_placeholders.py --verify`, `make_sounds.py --verify`, `gd47_check.py`),
+  exports single-file Windows and Linux binaries, verifies embedded `.pck` packs
+  via `inspect_pck.py --verify`, and writes/verifies `release/SHA256SUMS.txt`.
+  `tools/build_windows_exe.sh` now delegates cleanly to
+  `tools/build_release.sh --target=windows`.
+- **Code-signing guide & itch.io manifest (`2.07`, `2.13`).** Added
+  `docs/SIGNING.md` (covering Windows Authenticode via `signtool.exe`,
+  `osslsigncode`, and Azure Trusted Signing, SmartScreen reputation, and
+  Steam/itch.io depot setup) and root `.itch.toml` configuring Windows and Linux
+  launch actions for `butler`. Updated `RELEASE.md`, `release/README.md`, and the
+  in-game Credits screen (`scripts/ui/front.gd`).
+- **Asset generator `--verify` modes & exact dependency pinning (`2.14–2.15`).**
+  - Pinned `@fontsource/courier-prime` (`5.2.8`), `@fontsource/open-sans`
+    (`5.2.7`), and `@fontsource/oswald` (`5.2.8`) to exact versions in
+    `cinematics/package.json`.
+  - Added `--verify` to `tools/make_placeholders.py` (verifies all 123 SVGs +
+    `icon.svg` + `assets/svg/manifest.json` in memory).
+  - Added `--verify`, `--list`, and `assets/sfx/manifest.json` to
+    `tools/make_sounds.py` (verifies all 34 WAV files' SHA-256 digests, byte
+    sizes, frame counts, and `22,050 Hz / 16-bit mono` headers with stdlib, plus
+    full DSP re-synthesis when `numpy`/`scipy` are present).
+  - Wired both `--verify` checks into `tools/ci/ci.yml` and added M2 packaging
+    assertions to `tests/improvements_test.gd` and `tests/godot472_test.gd`.
+
 ## v0.60 — Milestone 1: Foundation ("Make the branch true")
 
 Completes Milestone 1 (`0.50 → 0.60`) of `ROADMAP.md`, verified end-to-end on

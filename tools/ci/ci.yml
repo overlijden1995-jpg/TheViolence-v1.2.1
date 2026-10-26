@@ -59,6 +59,10 @@ jobs:
             echo "::error::scripts/version.gd, project.godot, export_presets.cfg, and tools/patch_rc.py disagree. Run python3 tools/sync_version.py and commit all four."
             exit 1
           }
+      - name: generated SVG and SFX assets match manifests
+        run: |
+          python3 tools/make_placeholders.py --verify
+          python3 tools/make_sounds.py --verify
 
   headless:
     name: headless (${{ matrix.engine }})

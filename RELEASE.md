@@ -1,99 +1,79 @@
-# The Violence — compact Windows prototype
+# The Violence — Release Packaging & Build Guide (`v0.70`)
 
 ```
-release/TheViolence.exe      92,308,944 bytes      88.0 MiB      one file
+release/TheViolence.exe         Windows x86_64   single-file GUI executable (embedded .pck)
+release/TheViolence.x86_64      Linux x86_64     single-file ELF executable (embedded .pck)
+release/SHA256SUMS.txt          SHA-256 digests  generated and verified by tools/build_release.sh
 ```
 
-This is a self-contained Windows build of the full prototype: campaign/story,
-Test Range, and Endless Battle are included. The engine and embedded game pack
-are in the executable; there is no sidecar `.pck`, installer, Godot install, or
-DLL bundle. It is **7,691,056 bytes below GitHub's 100,000,000-byte per-file
-limit**.
+Both release artefacts are self-contained single-file builds (`binary_format/embed_pck=true`
+in `export_presets.cfg`): campaign/story, Test Range, and Endless Battle (`Port Carrick`)
+are included inside the executable with no sidecar `.pck`, no installer, and no
+external Godot runtime required.
 
-- **Machine:** x86-64, Windows GUI subsystem
-- **Runs on:** Windows 10 and 11 (64-bit). The renderer is `gl_compatibility`,
-  so the machine needs an OpenGL 3.3 driver — Intel HD 4000 and newer, any
-  AMD/NVIDIA card from the last decade.
-- **Imports:** 33 libraries, every one a stock Windows DLL. `tools/inspect_exe.py`
-  prints the list.
-- **Unsigned and not yet exercised on Windows hardware.** SmartScreen may warn
-  on first run; the Linux build host cannot verify Windows startup behavior.
+- **Windows (`release/TheViolence.exe`):** x86-64, Windows GUI subsystem, runs on
+  Windows 10 and 11 (64-bit) with an OpenGL 3.3 driver (`gl_compatibility`).
+  Imports only stock Windows system DLLs (verified by `tools/inspect_exe.py`).
+  Branded with `icon.ico`, product name `The Violence`, and 4-part PE version
+  `0.70.0.0` via `tools/patch_rc.py`.
+- **Linux (`release/TheViolence.x86_64`):** x86-64 ELF binary (`gl_compatibility`).
+- **Storefront manifest:** `.itch.toml` at the repository root configures both
+  launch targets for itch.io (`butler`).
+- **Signing & SmartScreen:** See `docs/SIGNING.md` for Windows Authenticode
+  signing (`signtool.exe` / `osslsigncode` / Azure Trusted Signing), SmartScreen
+  reputation seeding, and Steam / itch.io depot upload commands.
 
-## What is in it
+---
 
-`tools/inspect_pck.py release/TheViolence.exe --verify` reads the embedded pack
-without Godot and checks every file against its stored MD5:
+## What Is Packed (`export_presets.cfg`)
 
-| | |
-| --- | --- |
-| files | 498 |
-| payload | 23.9 MiB |
-| verified | all files match |
-| textures (`*.ctex`) | 124 |
-| sounds (`*.sample`) | 34 |
-| cutscenes (`*.ogv`) | 8 |
-| compiled scripts (`*.gdc`) | 81 |
+`tools/inspect_pck.py <binary> --verify` reads the embedded `GDPC` pack without
+Godot and checks every packed file against its stored MD5:
 
-The pack is embedded in the PE's `pck` section. The four opening films and the
-four shorts currently wired into campaign play (`s06`, `s09`, `s11`, `s12`) are
-included. The other ten shorts remain in the source tree but are excluded from
-both release presets: they do not currently have gameplay triggers. Gameplay,
-all three modes, and campaign outcomes are unchanged.
+- **124 SVG textures (`*.ctex`)** — verified against `assets/svg/manifest.json` (`python3 tools/make_placeholders.py --verify`)
+- **34 synthesised WAV sounds (`*.sample`)** — verified against `assets/sfx/manifest.json` (`python3 tools/make_sounds.py --verify`)
+- **8 Ogg Theora cutscenes (`*.ogv`)** — the 4 opening films (`c1..c4`) and the 4 wired campaign shorts (`s06`, `s09`, `s11`, `s12`) encoded at Theora quality 4
+- **81 compiled runtime scripts (`*.gdc`)** — all under `scripts/`
+- **Excluded from release packs:** `tests/*`, `tools/*`, `build/*`, `cinematics/*`, `docs/*`, `*.md`, `*.py`, `*.sh`, `*.bat`, `.itch.toml`, `assets/*/manifest.json`, and the 10 unwired short cutscenes (`s01–s05`, `s07–s08`, `s10`, `s13–s14`).
 
-The eight included Ogg Theora videos were re-encoded at quality 4 while keeping
-their 1280×720 frame size, frame rate, duration, and Vorbis audio. The cinematic
-source scripts now use the same quality setting for future renders. The ten
-excluded shorts were left untouched in the source.
+---
 
-`tests/`, `tools/`, markdown sources, and the Remotion sources under
-`cinematics/` are not in the pack.
+## Building & Verifying Release Binaries
 
-## Build and repeat
-
-The build host cannot use the official GitHub-hosted Godot release templates,
-so `tools/build_windows_exe.sh` builds the Godot editor and Windows template
-from Godot 4.4.1 source. The template is branded with the game's icon/version,
-then exported with `binary_format/embed_pck=true`.
+Because restricted build hosts cannot download pre-built Godot templates from
+`github.com/.../releases/download/`, `tools/build_release.sh` compiles the
+headless Linux editor and the Windows/Linux release templates directly from the
+Godot source tarball (`codeload.github.com`):
 
 ```sh
-JOBS=2 tools/build_windows_exe.sh
+# Build both Windows (release/TheViolence.exe) and Linux (release/TheViolence.x86_64)
+# plus release/SHA256SUMS.txt (defaults to GODOT_TAG=4.7.2-stable)
+JOBS=8 tools/build_release.sh
+
+# Build Windows only (or run tools/build_windows_exe.sh)
+JOBS=8 tools/build_release.sh --target=windows
+
+# Build Linux only
+JOBS=8 tools/build_release.sh --target=linux
+
+# Verify or regenerate release/SHA256SUMS.txt
+tools/build_release.sh --verify-sums
+tools/build_release.sh --write-sums
 ```
 
-The script pins SCons 4.8.1 and Zig 0.13.0, verifies the embedded pack, and
-fails if the finished executable is 100,000,000 bytes or larger. Requires
-Python 3, `curl`, `tar`, and a C/C++ toolchain for the Linux editor; build
-artifacts and downloaded toolchains stay in ignored `.build/`.
+Before compiling, `tools/build_release.sh` automatically runs:
 
-The checked-in Oggs are already the compact release encodes. To regenerate
-cinematics from the Remotion MP4 masters, use `cinematics/scripts/to_game.sh`
-and `cinematics/scripts/to_game-shorts.sh`; both now default to Theora quality
-4.
+1. `python3 tools/sync_version.py --check` (verifies `0.70` / `0.70.0.0` sync across `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py`)
+2. `python3 tools/make_placeholders.py --verify` (verifies all 123 SVGs + `icon.svg` + `assets/svg/manifest.json`)
+3. `python3 tools/make_sounds.py --verify` (verifies all 34 WAVs + `assets/sfx/manifest.json`)
+4. `python3 tools/gd47_check.py` (static GDScript 4.7 audit across all 118 scripts)
 
-## Verification performed
+---
 
-- `tools/inspect_exe.py release/TheViolence.exe` — x86-64 GUI PE, embedded pack,
-  icon/version resources, and only stock Windows imports.
-- `tools/inspect_pck.py release/TheViolence.exe --verify` — 498 files, every
-  MD5 matches; all ten unwired shorts are absent and all eight retained videos
-  are present.
-- Extracted the embedded pack and ran it with the Godot 4.4.1 Linux editor
-  (`--headless --main-pack ... --quit-after 600`) with no script errors.
-- Headless project boot — 600 frames, no script errors.
-- `tools/run_tests.sh --quick` on Godot 4.4.1 — **11/11 suites passed**.
+## Distribution Policy (`2.07`)
 
-An actual run on Windows hardware is still needed before calling this a tested
-Windows release. This is a playable prototype build, not a signed release.
-
-## Where the file lives
-
-`release/TheViolence.exe` is generated locally and remains git-ignored to keep
-binary builds out of source history. It is below GitHub's ordinary 100 MB file
-limit, but a GitHub Release asset is still the cleaner distribution channel.
-Rebuild it with `tools/build_windows_exe.sh`.
-
-## Checksum
-
-```
-92,308,944 bytes
-SHA-256  2001da5e0bc20f18c99ad63bfb28f9b4f6bd90ca105b963657e2b16f58c51bb2
-```
+`release/*` (except `release/README.md`) is git-ignored so large compiled
+executables stay out of Git history. Distribute `release/TheViolence.exe`,
+`release/TheViolence.x86_64`, and `release/SHA256SUMS.txt` as GitHub Release
+assets and via itch.io (`butler`) / Steam (`SteamPipe`) as documented in
+`docs/SIGNING.md`.

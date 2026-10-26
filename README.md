@@ -2,7 +2,7 @@
 
 **The Violence** is a Godot 4 police-command and close-quarters autobattler set in Port Carrick. You are the chief: choose which situations to answer, assign officers, write their orders, and watch the operation resolve hands-off. The campaign lasts forty weeks and ends with an election.
 
-**Version 0.60** — Milestone 1 (Foundation) complete. See `ROADMAP.md` for the milestone plan from `0.50` to `1.00`, and `RELEASE_READINESS.md` for the technical assessment, Godot 4.7.2 verification actuals, and release checklist.
+**Version 0.70** — Milestone 2 (Clean Ship) complete. See `ROADMAP.md` for the milestone plan from `0.50` to `1.00`, `RELEASE.md` and `docs/SIGNING.md` for release packaging and signing, and `RELEASE_READINESS.md` for the technical assessment and verification actuals.
 
 ## Run the game
 
@@ -125,7 +125,7 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 - `tools/`: static audit, test runner, Windows cross-build script, PE/PCK inspectors, and asset generators.
 - `cinematics/`: Remotion-based cutscene compositions (JSX source and conversion scripts).
 
-## Current state (v0.60)
+## Current state (v0.70)
 
 | Layer | Status |
 |---|---|
@@ -140,17 +140,17 @@ python3 tools/gd47_check.py scripts/   # or one subtree
 | Test harnesses (34 runnable + 1 visual scene in `tests/`) | Complete — all 34 runnable harnesses exit non-zero on failure (`1.01–1.19`) |
 | Balance matrix (16 gated cells) | Measured & verified on Godot 4.7.2 (`balance_matrix_test.gd -- --gate --min=30`) |
 | Performance baseline | Measured on Godot 4.7.2 (`m11_plaza` 20v20: `3.87 ms/tick`, `42.0 MiB` static memory) |
-| License | MIT (`LICENSE`, `THIRD_PARTY_NOTICES`, `cinematics/LICENSE_NOTE.md`) |
-| Windows build | Not in repo (git-ignored; build via `tools/build_windows_exe.sh`, documented in `RELEASE.md`, unsigned and awaiting owner hardware check) |
+| License & Third-Party Notices | Complete — MIT (`LICENSE`, `THIRD_PARTY_NOTICES`, `cinematics/LICENSE_NOTE.md`) |
+| Release packaging (`2.01–2.15`) | Complete — `tools/build_release.sh` (Windows `TheViolence.exe` + Linux `TheViolence.x86_64` + `SHA256SUMS.txt`), `.itch.toml`, `docs/SIGNING.md`, `make_placeholders.py --verify`, `make_sounds.py --verify` |
 | Music / score | **Missing** (planned in M4) |
-| Accessibility | **Minimal** (red-ink/gore toggles; keybind remapping & UI scale planned in M3) |
+| Accessibility | **Minimal** (red-ink/gore toggles; keybind remapping & UI scale planned in M3 `0.80`) |
 | Localization | **Not started** (planned in M5) |
 | CI pipeline | Ready at `tools/ci/ci.yml` (owner activation via `git mv tools/ci/ci.yml .github/workflows/ci.yml`) |
 
-See `ROADMAP.md` for the milestone roadmap (`0.50 → 1.00`), `RELEASE_READINESS.md` for the full technical assessment and release plan, and `PLAYTEST_REPORT.md` for the design and playtest audit.
+See `ROADMAP.md` for the milestone roadmap (`0.50 → 1.00`), `RELEASE_READINESS.md` for the full technical assessment and release plan, `docs/SIGNING.md` for code signing and storefront packaging, and `PLAYTEST_REPORT.md` for the design and playtest audit.
 
-## Windows build
+## Windows and Linux builds
 
-A compact single-file Windows prototype is documented in `RELEASE.md` and `release/README.md` (88 MiB, Godot 4.4.1, self-contained). The executable binary is git-ignored and not checked into the repository; build it locally with `tools/build_windows_exe.sh`. This build is unsigned and has not been tested on Windows hardware — it is a candidate, not a release.
+Self-contained single-file Windows (`release/TheViolence.exe`) and Linux (`release/TheViolence.x86_64`) builds are configured in `export_presets.cfg` and documented in `RELEASE.md`, `release/README.md`, and `docs/SIGNING.md`. Compiled binaries are git-ignored and distributed via GitHub Releases / itch.io / Steam; build and verify them locally with `tools/build_release.sh`.
 
 See `CHANGELOG.md` for detailed version history and the in-game **How to play** pages for the full mechanics reference.
