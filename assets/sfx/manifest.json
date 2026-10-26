@@ -1,0 +1,280 @@
+{
+ "generator": "tools/make_sounds.py",
+ "license": "original, project-owned",
+ "seed": 1977,
+ "sample_rate": 22050,
+ "files": {
+  "shot_pistol_1.wav": {
+   "sha256": "7ecdaad64bd314871104412ab27efc26869669faad51190dea51e3d63d09d452",
+   "bytes": 19888,
+   "frames": 9922,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_pistol_2.wav": {
+   "sha256": "bdf79cd69c3935c7b1d7fb4136d46ca41c6dee0c0e463fa3e7329f483c846a5a",
+   "bytes": 19888,
+   "frames": 9922,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_pistol.wav": {
+   "sha256": "b2c189bc865a9c91bc01810ed05a3e69e5bd67392766c4db3a876c0897711511",
+   "bytes": 31796,
+   "frames": 15876,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_pistol_heavy_1.wav": {
+   "sha256": "0e2f65949881e2292c88bf6ac0c0492e6f2aa2019a4528bc7f333f58d3d45ef3",
+   "bytes": 24298,
+   "frames": 12127,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_pistol_heavy_2.wav": {
+   "sha256": "b47602c2cffaca30fb956a151dceb5f2a1ccbddafb00dd8cb91d19fe17543210",
+   "bytes": 24298,
+   "frames": 12127,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_pistol_heavy.wav": {
+   "sha256": "3f441752b2a52d664192243d98564925794a21baffd51bc62e58eec4b44c8d71",
+   "bytes": 38852,
+   "frames": 19404,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_smg_1.wav": {
+   "sha256": "2e0753c19939ca26463109bdef8eb7a9d82f054dbe3529c03217ec0ea82624b5",
+   "bytes": 15478,
+   "frames": 7717,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_smg_2.wav": {
+   "sha256": "94c06e59650b0e34ddd1d2569cfe5e7b58531eccbc746f18d476f2d257758186",
+   "bytes": 15478,
+   "frames": 7717,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_smg.wav": {
+   "sha256": "8c03c37a9e7fc1b55b5de1253b2a0d0eb30a5aaab874ad229b5b4285ac6bff30",
+   "bytes": 24738,
+   "frames": 12347,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_1.wav": {
+   "sha256": "dc0431f96b5d1008a48867221718b3ccf083f6e6992af46c0ceca7cc50066ffb",
+   "bytes": 28708,
+   "frames": 14332,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_2.wav": {
+   "sha256": "3c2ad5cdb79d61c00422944f9e236b42fe33c2db4091f55a4876d8db4ed191a1",
+   "bytes": 28708,
+   "frames": 14332,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_rifle.wav": {
+   "sha256": "293c961434148c3c9f13373dd62f19840377cc99a132534be2c66aa19094c902",
+   "bytes": 45908,
+   "frames": 22932,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_loud_1.wav": {
+   "sha256": "9238317b1d9f302a60672e942c6c5b5a90ef1ea38c07ac1c4da69ab887056b6a",
+   "bytes": 33118,
+   "frames": 16537,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_loud_2.wav": {
+   "sha256": "ee949ad692293c0b07227c6b43d3de0f650c57a8e6c7e0eb1eff6a146254078e",
+   "bytes": 33118,
+   "frames": 16537,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_rifle_loud.wav": {
+   "sha256": "a64850da7e7eb29d7a7e986c527ee2436a3b3d5fc59fc268edcf38a29f4a5e5d",
+   "bytes": 52964,
+   "frames": 26460,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_heavy_1.wav": {
+   "sha256": "90908b6271886e8f4c4390d95c2ea4061710ac6901e7c4b17f7edc15ffd77c97",
+   "bytes": 39734,
+   "frames": 19845,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_rifle_heavy_2.wav": {
+   "sha256": "be4946fb009a9a8301c88ac4863b6ff34ede319f07c7b0fefae608190234bad9",
+   "bytes": 39734,
+   "frames": 19845,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_rifle_heavy.wav": {
+   "sha256": "217ef4f0501529ec3b28cfe6885dd3f170dc75ff4a63f7c584331f12ceeaa6e0",
+   "bytes": 63548,
+   "frames": 31752,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_shotgun_1.wav": {
+   "sha256": "4877bed6d5ccba9d9fd46d29739c560abf5710bf2310e0ef43c96588e822593e",
+   "bytes": 37528,
+   "frames": 18742,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "shot_shotgun_2.wav": {
+   "sha256": "92d73addc02c158df3a4ab235f5b22625a25364521c80d899ec6a5b288b35f64",
+   "bytes": 37528,
+   "frames": 18742,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "far_shotgun.wav": {
+   "sha256": "0004dba4f59fa6d133f389c5757c0d4e5a1f1559bbc89d134de01f4a6d8b0658",
+   "bytes": 60020,
+   "frames": 29988,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "flashbang.wav": {
+   "sha256": "90da6c05b672e75007f2a46fdef5748c39f52abae9a259da63cbe9b5b6e68fa1",
+   "bytes": 105884,
+   "frames": 52920,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "sting.wav": {
+   "sha256": "89958128c1c2d0068e36aac163a929d3a53bb534566b24be511b284f33d2fc09",
+   "bytes": 52964,
+   "frames": 26460,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "ram.wav": {
+   "sha256": "d564d40f7d4a561d95471a31596239623f76675c275486d3dcdd82854cd3a473",
+   "bytes": 30912,
+   "frames": 15434,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "kick.wav": {
+   "sha256": "cf9cbf830ee1d02d0094e503f4909ae890053abaee51f466ee45f3c835b38705",
+   "bytes": 22094,
+   "frames": 11025,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "door.wav": {
+   "sha256": "f15a854e9bbda3defc45bc60086339d90ebe4f24c8ae06a90df35e6ec7b012c8",
+   "bytes": 26504,
+   "frames": 13230,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "gas.wav": {
+   "sha256": "21e3a469eb45f62ab182c09411e2bf43e76a614ba2224825e0f06e79c76ab29f",
+   "bytes": 88244,
+   "frames": 44100,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "taser.wav": {
+   "sha256": "e28db4dc77239f4bddded1435f0a46c7ccf2f41dbe652e9c226e34952d3087e4",
+   "bytes": 48554,
+   "frames": 24255,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "radio.wav": {
+   "sha256": "154478ef5677af202d3ad80f58a6b4695d623f6251d6b77bda33662f828daa0a",
+   "bytes": 18566,
+   "frames": 9261,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "click.wav": {
+   "sha256": "2923d30a7b4082749d0016144ca1ce02b4b2463700e44dbc5e214e37a21fa4a8",
+   "bytes": 2690,
+   "frames": 1323,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "stamp.wav": {
+   "sha256": "a2d5fb85daf0d8031930911043ef0cd4eef48ed973d7f177b12b2883cd07382f",
+   "bytes": 17684,
+   "frames": 8820,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "toll.wav": {
+   "sha256": "e4039c7dc3c29e70c9bd055b7d455e8fae141eea55d8722f17abd157a1435b17",
+   "bytes": 39734,
+   "frames": 19845,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "amb_city.wav": {
+   "sha256": "0d7c006e099412bd598ab7c4249a30ddca8c9a9e1b74e5f51e4ddeb5c5d050a2",
+   "bytes": 1764044,
+   "frames": 882000,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  },
+  "amb_office.wav": {
+   "sha256": "c7da19da1bb67f4f592294ff884c204fcb2b5236f268c93e4fc8f7c8f42692bb",
+   "bytes": 1323044,
+   "frames": 661500,
+   "channels": 1,
+   "sampwidth": 2,
+   "framerate": 22050
+  }
+ }
+}

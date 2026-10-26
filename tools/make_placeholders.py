@@ -1140,7 +1140,46 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", default="assets/svg")
     ap.add_argument("--list", action="store_true")
+    ap.add_argument("--verify", action="store_true", help="verify existing SVGs and manifest without writing")
     a = ap.parse_args()
+    if a.verify:
+        errors = []
+        for rel, fn in ASSETS.items():
+            dst = os.path.join(a.out, rel)
+            expected = quantise(fn())
+            if not os.path.isfile(dst):
+                errors.append(f"missing: {dst}")
+                continue
+            with open(dst, "r", encoding="utf-8") as f:
+                actual = f.read()
+            if actual != expected:
+                errors.append(f"mismatch: {dst}")
+        icon_expected = quantise(icon_app())
+        if not os.path.isfile("icon.svg"):
+            errors.append("missing: icon.svg")
+        else:
+            with open("icon.svg", "r", encoding="utf-8") as f:
+                if f.read() != icon_expected:
+                    errors.append("mismatch: icon.svg")
+        manifest_path = os.path.join(a.out, "manifest.json")
+        manifest_expected = {
+            "generator": "tools/make_placeholders.py",
+            "license": "original, project-owned",
+            "px_per_metre": PPM,
+            "files": list(ASSETS),
+        }
+        if not os.path.isfile(manifest_path):
+            errors.append(f"missing: {manifest_path}")
+        else:
+            with open(manifest_path, "r", encoding="utf-8") as f:
+                if json.load(f) != manifest_expected:
+                    errors.append(f"mismatch: {manifest_path}")
+        if errors:
+            for err in errors:
+                print(f"make_placeholders --verify: {err}")
+            raise SystemExit(1)
+        print(f"make_placeholders --verify: {len(ASSETS)} SVG files + icon.svg + manifest.json OK")
+        return
     for rel, fn in ASSETS.items():
         if a.list:
             print(rel)
