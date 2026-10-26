@@ -1,14 +1,18 @@
 # release/
 
-`TheViolence.exe` is the single-file Windows prototype build. The current
-compact build is under GitHub's 100 MB per-file limit, but binaries remain
-ignored to keep them out of source history. Distribute it as a GitHub Release
-asset instead.
+Release binaries (`TheViolence.exe`, `TheViolence.x86_64`, and `SHA256SUMS.txt`)
+are generated locally into this directory and kept git-ignored so large binaries
+stay out of source history. Distribute them as GitHub Release / itch.io / Steam
+assets instead.
 
-Rebuild with:
+Build and verify with:
 
 ```sh
-JOBS=2 tools/build_windows_exe.sh
+JOBS=8 tools/build_release.sh                # Windows + Linux + SHA256SUMS.txt
+JOBS=8 tools/build_release.sh --target=windows
+JOBS=8 tools/build_release.sh --target=linux
+tools/build_release.sh --verify-sums
 ```
 
-See `../RELEASE.md` for contents, verification, and the current checksum.
+See `../RELEASE.md` for packaging details and `../docs/SIGNING.md` for Windows
+Authenticode code-signing and storefront upload instructions.
