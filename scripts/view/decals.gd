@@ -35,7 +35,13 @@ var _rev := -1
 
 static func tex(key: String) -> Texture2D:
 	if not _tex.has(key):
-		_tex[key] = load("res://assets/svg/%s.svg" % key)
+		var path := "res://assets/svg/%s.svg" % key
+		var t: Texture2D = load(path) if ResourceLoader.exists(path) else null
+		if t == null and FileAccess.file_exists(path):
+			var img := Image.new()
+			if img.load(path) == OK:
+				t = ImageTexture.create_from_image(img)
+		_tex[key] = t
 	return _tex[key]
 
 

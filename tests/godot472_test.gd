@@ -29,6 +29,7 @@ func _init() -> void:
 	_test_version_sync()
 	_test_department_bad_saves()
 	_test_campaign_bad_saves()
+	_test_nav_without_build()
 	print("godot472_test: %s" % ("PASS" if fails == 0 else "%d FAILED" % fails))
 	quit(1 if fails > 0 else 0)
 

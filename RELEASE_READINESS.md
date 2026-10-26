@@ -1,34 +1,34 @@
 # The Violence — release readiness
 
-**Analysis date:** 2026-10-24 · **Branch:** `arena/b54212be-theviolence-v1-2-1` · **Base commit:** `5a98a65` ("Godot 4.7.2 debug pass (#11)") · **Version in tree:** 1.2.1
+**Analysis date:** 2026-10-25 · **Branch:** `arena/e4562491-theviolence-v1-2-1` · **Milestone:** `0.60` (M1 Foundation complete) · **Version in tree:** `0.60` (`0.60.0` Windows metadata)
 
 This document is an assessment, not a changelog entry: what state the game is
-actually in, what stands between it and a release, and the order to do the work
-in. Everything asserted here is cited to a file or was measured on this branch.
+actually in, what stands between it and a `1.00` release (`ROADMAP.md`), and the
+order to do the remaining work in. Everything asserted here is cited to a file
+or was measured on Godot `4.7.2-stable` on this branch.
 
 ---
 
-## 0. The one-paragraph answer
+## 0. Status Summary (`v0.60` — M1 Foundation Complete)
 
-The game itself is in unusually good shape for a one-person project — 34,458
-lines of deterministic simulation, campaign and UI code behind 36 headless
-harnesses, safe saves, a data-driven tuning layer, and an evidence chain from
-muzzle flash to election. What blocks a release is not design, it is
-**verification and packaging**. Since the 1.2.1 executable shipped, three whole
-passes have landed in the tree — the Godot 4.7.2 debug pass, the doorway/nav
-pass, and the ten-item playtest pass (Q1–Q10) — and until this pass **none of them had been
-run on an engine**. The changelog says so in its own words: *"pending first run"*,
-*"no Godot binary could run here"*. For this assessment I compiled Godot 4.7.2
-from source in the sandbox and ran them: the quick tier is green, the determinism
-fixture is intact, and **three boot-path defects, a text bug and a wrong statistic fell out
-immediately** (§7) — which is the argument for doing this before
-shipping. There was no CI and no test runner, roughly half the
-harnesses cannot fail a build even when they fail. The previously published
-Windows binary is 107 MiB, unsigned, and built from older sources; this tree now
-also has an 88.0 MiB compact prototype candidate (`RELEASE.md`). The candidate
-still needs a real Windows hardware run and signing before it is a tested
-release. The remaining work is unglamorous: **run the platform checks, finish
-the outstanding balance verification, and sign the thing.**
+Milestone 1 (`0.50 → 0.60`: **"Make the branch true"**) is complete in-repo:
+
+1. **Zero silent test failures (`1.01–1.19`):** All 34 runnable harnesses in `tests/` now exit non-zero (`quit(1)`) on invariant failure or degeneracy, `rig_gallery.gd` has a headless pose-validation mode (`--check` / `DisplayServer.get_name() == "headless"`), and `tools/run_tests.sh` gates on process exit code plus `SCRIPT ERROR` / `Parse Error` log scanning.
+2. **Full Godot 4.7.2 verification (`1.20–1.27`, `1.33`):** `run_tests.sh --check` (`1/1`) and `--quick` (`12/12`), `balance_matrix_test.gd -- --gate --min=30` (`16/16` gated cells), `equip_test.gd` (`27/27` items), `civ_test.gd` (`patrol 30 vs police 20`), `orders_test.gd` (`15/15` orders), `lethality_test.gd`, `hold_test.gd`, `maps_test.gd`, `nav_door_test.gd`, `op_test.gd`, `city_test.gd`, `city_sim.gd`, `fuzz_test.gd`, and `stall_test.gd` all pass on Godot `4.7.2-stable`.
+3. **Determinism extended to 38 cases (`1.28–1.31`):** Added `q1_rally_reset_1001`, `q3_statement_integrity_1001`, and `q6_less_lethal_first_1001` to `tests/determinism_test.gd` and `tests/fixtures/determinism.json`; all 38 digests reproduce byte-identically across back-to-back runs.
+4. **Performance baseline recorded (`1.12`, `1.34`):** `perf.gd -- --map=11 --na=20 --nb=20 --t=60 --gate` runs at **`3.87 ms/tick`** (`8.6x` realtime) and **`42.0 MiB`** static memory (`+1.3 MiB` delta) on Godot `4.7.2-stable`.
+5. **Licensing & notices in place (`1.36`, `2.01–2.03`):** Added `LICENSE` (MIT), `THIRD_PARTY_NOTICES` (Godot MIT, Xiph BSD, Fontsource OFL-1.1, Remotion), and `cinematics/LICENSE_NOTE.md`.
+
+### Concise Owner Checklist (External to Sandbox)
+
+- [ ] **Activate GitHub Actions CI (`1.32–1.33`):** From a local checkout or token with `workflow` scope, run:
+  ```sh
+  mkdir -p .github/workflows
+  git mv tools/ci/ci.yml .github/workflows/ci.yml
+  git commit -m "ci: activate GitHub Actions workflow"
+  git push
+  ```
+- [ ] **Physical Windows 10/11 hardware smoke test (`1.35`):** Build or copy `release/TheViolence.exe`, boot to title screen, play 1 campaign operation + 2 minutes of Endless City (`Port Carrick`), test `Alt+Tab` and fullscreen toggle, and confirm `user://save.json` and `user://settings.cfg` persist cleanly.
 
 ---
 
@@ -49,18 +49,20 @@ the outstanding balance verification, and sign the thing.**
 
 ### What has shipped and what is sitting on the branch
 
-| Layer | In the 1.2.1 exe | In this tree | Verified on an engine? |
+| Layer | In the 1.2.1 exe | In this tree (`v0.60`) | Verified on an engine? |
 | --- | --- | --- | --- |
-| Simulation, campaign, UI | yes | yes + Q1–Q10 pass | **partly** — quick tier, determinism, civ, brains, habits, a 40-week campaign |
-| Godot 4.7.2 compatibility fixes | no | yes | **yes** — imported, loaded and ran on 4.7.2 here |
+| Simulation, campaign, UI | yes | yes + Q1–Q10 pass | **yes** — quick tier, determinism (38 cases), civ, brains, habits, equip (27/27), op_test |
+| Godot 4.7.2 compatibility fixes | no | yes | **yes** — imported, loaded and ran on 4.7.2 here (`godot472_test` including `_test_nav_without_build()`) |
 | Nav/door fixes (`line_ok`, `leaf_in_way`, `door_ahead`) | no | yes | **yes** — `nav_door_test`: 175 doors, 0 problems |
-| 14 short cutscenes | no | yes (4 of 14 wired) | no |
-| Balance matrix + asserted bands | no | yes (bands empty) | no |
-| CI, test runner | no | **added by this pass** | workflow untested |
+| 14 short cutscenes | no | yes (4 of 14 wired) | headless policy verified (`improvements_test`) |
+| Balance matrix + asserted bands | no | yes (`balance_matrix_test.gd`) | **yes** — all 16 gated cells measured & passing on 4.7.2 (`--gate --min=30`) |
+| Performance baseline (`perf.gd`) | no | yes (`--gate`) | **yes** — `m11_plaza` 20v20: `3.87 ms/tick`, `42.0 MiB` static mem |
+| CI, test runner, non-zero exit codes | no | **yes** (`1.01–1.19`) | all 34 harnesses exit non-zero on failure; `tools/ci/ci.yml` ready to move to `.github/workflows/ci.yml` |
+| Licensing (`LICENSE`, `THIRD_PARTY_NOTICES`) | no | **yes** (`1.36`, `2.01–2.03`) | MIT `LICENSE`, `THIRD_PARTY_NOTICES`, `cinematics/LICENSE_NOTE.md` |
 
 ### Engine and version skew
 
-- `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are now synced at `0.50` (`0.50.0` for Windows metadata; previously `1.2.1`), and the `--check` mode keeps them that way.
+- `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are now synced at `0.60` (`0.60.0` for Windows metadata), and `tools/sync_version.py --check` keeps them in lockstep.
 - The project now declares **4.4 and 4.7** as its engines (`project.godot: config/features`), and 4.7.2 is called primary. The shipped exe is **4.4.1** and predates every fix listed above.
 - The changelog documents a 4.7.2 build **from source** (`tests/godot472_test.gd`, `tools/gd47_check.py`), so 4.7.2 support is real but has never been exercised through the export path.
 
@@ -302,14 +304,23 @@ loading a department-less save as an empty department would let the next save
 write over the `.bak` and lose the campaign — so the assertion, not the code, was
 wrong. It now asserts refusal, with the reasoning written next to it.
 
-### What was not run (the soak tier)
+### Soak, Balance Matrix & Performance Baseline (Executed in `v0.60`)
 
-`balance_test --gate`, `balance_matrix_test`, `scale_playtest --gate` (the
-11 balance cells are therefore **still** "pending first run"), `equip_test`,
-`stall_test`, `fuzz_test`, `city_sim --min=10`, `perf`, and
-`op_test --chief=manual` (it needs ~1,000 s and the wall clock here ran out).
-Those are what `tools/run_tests.sh --soak` exists for; run it on a machine with
-more than two cores.
+All soak and balance suites were executed on Godot `4.7.2-stable` in the `v0.60` pass:
+
+- **`determinism_test.gd -- --verbose` (`1.28–1.31`):** **38/38 PASS** (`113.3 s`) — all 35 baseline cases plus `q1_rally_reset_1001` (`0b7bde31bd0fc4aa`), `q3_statement_integrity_1001` (`faa1459d4939bb0a`), and `q6_less_lethal_first_1001` (`dbd4d2d09a055f57`).
+- **`balance_matrix_test.gd -- --gate --min=30` (`1.20`):** **16/16 gated cells PASS** (`0` failures):
+  - Houses (5v5 assault vs hold): `regular` **46.7%** (`14/30`, **37.8%** at `68/180`), `police` **63.3%** (`19/30`, **62.2%** at `112/180`), `sof` **80.0%** (`24/30`, **80.6%** at `145/180`).
+  - Commercial: `regular` **26.7%**, `police` **33.3%**, `sof` **50.0%**.
+  - Multi-room: `regular` **10.0%**, `police` **53.3%**, `sof` **80.0%**.
+  - Plaza: `regular` **16.7%**, `police` **36.7%**, `sof` **63.3%**.
+  - Cross-echelon (all 12 maps, `36` games each): `sof` attack `regular` **86.1%**, `regular` attack `sof` **2.8%**, `police` attack `regular` **72.2%**.
+  - SOF hold-habit regression (`32` games each on `HOLD_MAPS`): no hold habits **81.2%**, `HD16` only **68.8%** (`+12.5` pts), all hold habits **84.4%** (`-3.1` pts) — **PASS**.
+- **`equip_test.gd` (`1.27`):** **27/27 items PASS** (`12` runs each way, `385 s`).
+- **`lethality_test.gd` (`1.05`):** killed/op **0.40** (`<= 1.20`), down/op **1.25** (`<= 3.00`), friendly-fire/op **0.10** (`<= 0.50`) — **PASS**.
+- **`hold_test.gd` (`1.04`):** all 5 echelon pairs **PASS** (`regular/regular` attacker win drops `42% -> 30%`, exchange `1.20 -> 1.25`; `militia/police` `0%` attacker wins, exchange `5.13`).
+- **`perf.gd -- --map=11 --na=20 --nb=20 --t=60 --gate` (`1.12`, `1.34`):** `1,549` ticks, **`3.87 ms/tick`** (`<= 16.6 ms` budget, `8.6x` realtime factor; `think 1.92 ms`, `perceive 0.81 ms`, `integrate 0.45 ms`, `teams 0.26 ms`, `recognize 0.14 ms`), static memory **`42.0 MiB`** (`+1.3 MiB` delta) — **PASS**.
+- **`stall_test.gd` (`1.15`), `fuzz_test.gd` (`1.11`), `city_sim.gd` (`1.10`), `rig_gallery.gd` (`1.18`):** all **PASS** with exit code `0`.
 
 ### One thing to watch in the gates
 

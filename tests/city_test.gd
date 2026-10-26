@@ -77,4 +77,4 @@ func _init() -> void:
 			print("  ! no path from street %s" % str(sp))
 			bad += 1
 	print("problems: %d" % bad)
-	quit()
+	quit(1 if bad > 0 else 0)

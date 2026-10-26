@@ -108,7 +108,8 @@ func set_gun(key: String) -> void:
 	if gun.texture == tx:
 		return
 	gun.texture = tx
-	gun.offset = Vector2(0, -tx.get_height() / 2.0)
+	if tx != null:
+		gun.offset = Vector2(0, -tx.get_height() / 2.0)
 
 
 ## Kit worn on the torso (armour) or the head (helmet, mask).

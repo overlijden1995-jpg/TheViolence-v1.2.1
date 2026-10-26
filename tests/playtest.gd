@@ -126,18 +126,21 @@ func _init() -> void:
 	var f: FileAccess = null
 	if out != "":
 		f = FileAccess.open(out, FileAccess.WRITE)
+	var bad := 0
 	for idx in pick:
 		if idx >= all.size():
 			continue
 		var cell: Array = all[idx]
 		var r := run_cell(lv, nav, cell, n)
+		if r["t"] <= 0.0 or r["t"] > 600.0 or absf((r["a"] + r["b"] + r["d"]) - 100.0) > 0.5:
+			bad += 1
 		var line := "%d,%s,%.1f,%.1f,%.1f,%.1f,%.2f,%.2f,%.2f,%.2f,%.1f,%.1f,%.2f,%.1f,%.1f" % [idx, cell[0],
 			r["a"], r["b"], r["d"], r["t"], r["ad"], r["bd"], r["ex"], r["ff"], r["ah"], r["bh"], r["stray"], r["as"], r["bs"]]
 		print(line)
 		if f != null:
 			f.store_line(line)
 			f.flush()
-	quit()
+	quit(1 if bad > 0 else 0)
 
 
 func run_cell(lv, nav, cell: Array, n: int) -> Dictionary:

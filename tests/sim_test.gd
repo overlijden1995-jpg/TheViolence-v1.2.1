@@ -18,7 +18,7 @@ func cfg(id: String, team: int, slot: int, ech: String, lv, extra_bad := []) -> 
 	return {"id": id, "team": team, "slot": slot, "echelon": ech, "good": good, "bad": bad,
 		"plates": Habits.PRESET_PLATES[ech], "pos": lv.spawns[id]["p"], "face": lv.spawns[id]["face"], "enabled": true}
 
-func run(lv, nav, a: String, b: String, n: int, verbose := false, extra_a := [], extra_b := []) -> void:
+func run(lv, nav, a: String, b: String, n: int, verbose := false, extra_a := [], extra_b := []) -> Array:
 	var wins := [0, 0, 0]
 	var dur := 0.0
 	var t0 := Time.get_ticks_msec()
@@ -36,6 +36,7 @@ func run(lv, nav, a: String, b: String, n: int, verbose := false, extra_a := [],
 				print(l["text"])
 		w.dispose()
 	print("%-10s (assault) vs %-10s (hold): A %d  B %d  draw %d   mean %.1f s   [%d ms]" % [a, b, wins[0], wins[1], wins[2], dur / n, Time.get_ticks_msec() - t0])
+	return wins
 
 func _init() -> void:
 	var map_i := 0
@@ -51,23 +52,25 @@ func _init() -> void:
 		if a.begins_with("--n="):
 			n = int(a.trim_prefix("--n="))
 	if "--ablation" in args:
-		_ablation(lv, nav, n)
-		quit()
+		var ok_ab := _ablation(lv, nav, n)
+		quit(0 if ok_ab else 1)
 		return
 	if "--verbose" in args:
-		run(lv, nav, "sof", "untrained", 1, true)
-		quit()
+		var w_v := run(lv, nav, "sof", "untrained", 1, true)
+		quit(0 if (w_v[0] + w_v[1] + w_v[2]) == 1 else 1)
 		return
-	run(lv, nav, "sof", "untrained", n)
-	run(lv, nav, "untrained", "sof", n)
+	var w1 := run(lv, nav, "sof", "untrained", n)
+	var w2 := run(lv, nav, "untrained", "sof", n)
 	run(lv, nav, "regular", "militia", n)
 	run(lv, nav, "militia", "regular", n)
 	run(lv, nav, "regular", "regular", n)
-	quit()
+	var ok: bool = w1[0] >= w2[0]
+	quit(0 if ok else 1)
 
 
 ## The bible's thesis check: identical special-operations reflexes, 40 habits vs none.
-func _ablation(lv, nav, n: int) -> void:
+func _ablation(lv, nav, n: int) -> bool:
+	var ok := true
 	for roles in [["assault", "hold"], ["hold", "assault"]]:
 		for bonus in [true, false]:
 			var wins := [0, 0, 0]
@@ -91,4 +94,7 @@ func _ablation(lv, nav, n: int) -> void:
 					w.step()
 				wins[w.winner] += 1
 				w.dispose()
+			if n >= 5 and wins[0] < wins[1]:
+				ok = false
 			print("40 habits (A, %s) vs 0 habits (B, %s), speed bonus %s: A %d  B %d  draw %d" % [roles[0], roles[1], "on" if bonus else "OFF", wins[0], wins[1], wins[2]])
+	return ok

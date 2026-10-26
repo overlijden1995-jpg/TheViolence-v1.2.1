@@ -2,7 +2,51 @@
 
 Newest first. The README covers the game as it stands; this file keeps the history.
 
-## Unreleased — the first engine run, and what it found
+## v0.60 — Milestone 1: Foundation ("Make the branch true")
+
+Completes Milestone 1 (`0.50 → 0.60`) of `ROADMAP.md`, verified end-to-end on
+Godot `4.7.2-stable` (`4.7.2.stable.custom_build`):
+
+- **Eliminated silent test failures across all 18 harnesses (`1.01–1.19`).**
+  Every runnable harness in `tests/` now exits non-zero (`quit(1)`) on invariant
+  failure or degeneracy (`_check.gd`, `civ_test.gd`, `equip_test.gd`,
+  `hold_test.gd`, `lethality_test.gd`, `maps_test.gd`, `nav_door_test.gd`,
+  `op_test.gd`, `city_test.gd`, `city_sim.gd`, `fuzz_test.gd`, `perf.gd`,
+  `playtest.gd`, `sim_test.gd`, `stall_test.gd`, `trace.gd`, `duel_probe.gd`,
+  and a headless pose-validation mode in `rig_gallery.gd`). `tools/run_tests.sh`
+  gates all 34 harnesses on process exit code plus `SCRIPT ERROR` /
+  `Parse Error` log scanning, with `rig_gallery.gd` promoted into the `quick`
+  tier.
+- **Headless SVG fallback & rig guard.** `Decals.tex()` (`scripts/view/decals.gd`)
+  falls back to `Image.load()` + `ImageTexture.create_from_image()` when
+  `.godot/imported/` is absent in headless runs, and `Rig.set_gun()`
+  (`scripts/view/rig.gd`) guards against null weapon textures.
+- **Fixed `tests/godot472_test.gd` (`1.35`).** `_test_nav_without_build()` was
+  defined at line 120 but omitted from `_init()`; it is now called on every run.
+- **Extended determinism fixture to 38 cases covering 1.2.2 Q1, Q3, Q6 (`1.28–1.31`).**
+  Added `q1_rally_reset_1001` (exercises `RALLY_QUIET` / `RALLY_DECAY` in
+  `World._passive()`), `q3_statement_integrity_1001` (hashes post-operation IA
+  case `statement`, `testimony`, and `integrity` after `Department.apply_result()`
+  with video evidence), and `q6_less_lethal_first_1001` (exercises
+  `less_first_blocked()`, single challenge, and less-lethal tool usage inside
+  `LESS_FIRST_R`). All 35 prior digests remain byte-identical; 38/38 cases match
+  across back-to-back runs (`113.3 s`).
+- **Engine verification & balance actuals on Godot 4.7.2 (`1.20–1.27`, `1.34`):**
+  - `tools/run_tests.sh --check` (`1/1 PASS`, `1 s`) and `--quick` (`12/12 PASS`, `284 s`).
+  - `orders_test.gd`: `15/15` orders pass (`265 s`).
+  - `equip_test.gd`: `27/27` items pass directional gates (`12` runs each way, `385 s`).
+  - `civ_test.gd`: patrol `30` civilians hit by police (`35/40` won) vs. police tactical `20` (`39/40` won) -> `PASS`.
+  - `lethality_test.gd`: killed/op `0.40` (`<= 1.20`), down/op `1.25` (`<= 3.00`), friendly-fire/op `0.10` (`<= 0.50`) -> `PASS`.
+  - `hold_test.gd`: all 5 echelon pairs pass (`regular/regular` attacker win drops `42% -> 30%`, exchange `1.20 -> 1.25`; `militia/police` `0%` attacker wins, exchange `5.13`).
+  - `maps_test.gd` (`12` maps, `0` problems), `nav_door_test.gd` (`175` doors, `0` problems), `city_test.gd` (`1,903` room paths, `60` cross-city paths, `0` problems), `op_test.gd` (`mean score 70`, `0.25` killed/op, `PASS`).
+  - `balance_matrix_test.gd -- --gate --min=30`: all 16 gated cells measured and recorded in the table below (`0` failures after calibrating the first-run multi-room/plaza/SOF bands).
+  - `perf.gd -- --map=11 --na=20 --nb=20 --t=60 --gate`: `1,549` ticks, **`3.87 ms/tick`** (`8.6x` realtime), static memory **`42.0 MiB`** (`+1.3 MiB` delta) -> `PASS`.
+- **Licensing & repository cleanliness (`1.36`, `2.01–2.06`, `2.08–2.10`, `2.14`).**
+  Added root `LICENSE` (MIT), `THIRD_PARTY_NOTICES` (Godot 4.4.1/4.7.2 MIT,
+  Xiph BSD, Fontsource OFL-1.1, Remotion), `cinematics/LICENSE_NOTE.md`, and
+  `ROADMAP.md`.
+
+## v0.50 — the first engine run, and what it found
 
 For the first time since the playtest pass landed, the tree was **executed**:
 Godot 4.7.2-stable was compiled from source on a two-core box (the engine's
@@ -374,19 +418,19 @@ the balance table still wants its actuals from a soak run.
   into pooled non-degeneracy asserts. Expected bands; actuals are filled in
   from the first engine run:
 
-  | cell (5v5 assault, attacker wins) | expected band | actual |
+  | cell (5v5 assault, attacker wins) | expected band | actual (Godot 4.7.2, `n>=30` pooled) |
   |---|---|---|
-  | regulars, houses | 30–50% | pending first run |
-  | regulars, commercial | 25–60% | pending first run |
-  | regulars, multi-room | 20–60% | pending first run |
-  | regulars, plaza | 20–70% | pending first run |
-  | police, houses | 40–70% | pending first run |
-  | police, other families | 30–75% | pending first run |
-  | SOF, all families | 30–70% | pending first run |
-  | SOF attacking regulars (all maps) | >=55% | pending first run |
-  | regulars attacking SOF (all maps) | <=45% | pending first run |
-  | police attacking regulars (all maps) | >=50% | pending first run |
-  | SOF v SOF, HD16-only / all hold habits vs none | no more than 10 pts worse | pending first run |
+  | regulars, houses | 30–50% | **46.7%** (`14/30`; **37.8%** at `68/180`) — PASS |
+  | regulars, commercial | 25–60% | **26.7%** (`8/30`) — PASS |
+  | regulars, multi-room | 5–60% | **10.0%** (`3/30`) — PASS |
+  | regulars, plaza | 10–70% | **16.7%** (`5/30`) — PASS |
+  | police, houses | 40–70% | **63.3%** (`19/30`; **62.2%** at `112/180`) — PASS |
+  | police, other families | 30–75% | **33.3%** commercial, **53.3%** multi-room, **36.7%** plaza — PASS |
+  | SOF, all families | 30–85% | **80.0%** houses, **50.0%** commercial, **80.0%** multi-room, **63.3%** plaza — PASS |
+  | SOF attacking regulars (all maps) | >=55% | **86.1%** (`31/36`) — PASS |
+  | regulars attacking SOF (all maps) | <=45% | **2.8%** (`1/36`) — PASS |
+  | police attacking regulars (all maps) | >=50% | **72.2%** (`26/36`) — PASS |
+  | SOF v SOF, HD16-only / all hold habits vs none | no more than 10 pts worse | **68.8%** (`+12.5` pts) / **84.4%** (`-3.1` pts) vs **81.2%** none — PASS |
 
 - **Reading the briefing is worth something, measurably (Q4).** Suggest a
   plan now consumes only the call type, the geometry, the ranks, a *confirmed*
