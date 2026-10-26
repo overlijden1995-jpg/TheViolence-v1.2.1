@@ -19,6 +19,13 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def to_windows_version(version: str) -> str:
+    """Normalize a 2-, 3-, or 4-part version string into 4-part X.Y.Z.0 format."""
+    parts = [str(int(p)) for p in version.split(".") if p.isdigit()]
+    parts = (parts + ["0", "0", "0", "0"])[:4]
+    return ".".join(parts)
+
+
 def main(argv):
     check = False
     for arg in argv:
@@ -31,9 +38,10 @@ def main(argv):
     if not match:
         raise SystemExit("scripts/version.gd has no const VALUE")
     version = match.group(1)
-    windows = version + ".0"
+    windows = to_windows_version(version)
 
     changes = {
+        "scripts/version.gd": [(r'(?m)^const\s+WINDOWS\s*:=\s*[^\n]+', f'const WINDOWS := "{windows}"')],
         "project.godot": [(r'config/version="[^"]+"', f'config/version="{version}"')],
         "export_presets.cfg": [
             (r'application/file_version="[^"]+"', f'application/file_version="{windows}"'),

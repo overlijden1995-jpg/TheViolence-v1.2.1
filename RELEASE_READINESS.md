@@ -1,6 +1,6 @@
 # The Violence — release readiness
 
-**Analysis date:** 2026-10-25 · **Branch:** `arena/e4562491-theviolence-v1-2-1` · **Milestone:** `0.60` (M1 Foundation complete) · **Version in tree:** `0.60` (`0.60.0` Windows metadata)
+**Analysis date:** 2026-10-25 · **Branch:** `arena/113d2ca6-theviolence-v1-2-1` · **Milestone:** `0.70` (M2 Clean Ship complete) · **Version in tree:** `0.70` (`0.70.0.0` Windows metadata)
 
 This document is an assessment, not a changelog entry: what state the game is
 actually in, what stands between it and a `1.00` release (`ROADMAP.md`), and the
@@ -9,15 +9,19 @@ or was measured on Godot `4.7.2-stable` on this branch.
 
 ---
 
-## 0. Status Summary (`v0.60` — M1 Foundation Complete)
+## 0. Status Summary (`v0.70` — M1 Foundation + M2 Clean Ship Complete)
 
-Milestone 1 (`0.50 → 0.60`: **"Make the branch true"**) is complete in-repo:
+Milestones 1 (`0.50 → 0.60`: **"Make the branch true"**) and 2 (`0.60 → 0.70`: **"Clean the house"**) are complete in-repo:
 
-1. **Zero silent test failures (`1.01–1.19`):** All 34 runnable harnesses in `tests/` now exit non-zero (`quit(1)`) on invariant failure or degeneracy, `rig_gallery.gd` has a headless pose-validation mode (`--check` / `DisplayServer.get_name() == "headless"`), and `tools/run_tests.sh` gates on process exit code plus `SCRIPT ERROR` / `Parse Error` log scanning.
+1. **Zero silent test failures (`1.01–1.19`):** All 34 runnable harnesses in `tests/` exit non-zero (`quit(1)`) on invariant failure or degeneracy, `rig_gallery.gd` has a headless pose-validation mode (`--check` / `DisplayServer.get_name() == "headless"`), and `tools/run_tests.sh` gates on process exit code plus `SCRIPT ERROR` / `Parse Error` log scanning.
 2. **Full Godot 4.7.2 verification (`1.20–1.27`, `1.33`):** `run_tests.sh --check` (`1/1`) and `--quick` (`12/12`), `balance_matrix_test.gd -- --gate --min=30` (`16/16` gated cells), `equip_test.gd` (`27/27` items), `civ_test.gd` (`patrol 30 vs police 20`), `orders_test.gd` (`15/15` orders), `lethality_test.gd`, `hold_test.gd`, `maps_test.gd`, `nav_door_test.gd`, `op_test.gd`, `city_test.gd`, `city_sim.gd`, `fuzz_test.gd`, and `stall_test.gd` all pass on Godot `4.7.2-stable`.
 3. **Determinism extended to 38 cases (`1.28–1.31`):** Added `q1_rally_reset_1001`, `q3_statement_integrity_1001`, and `q6_less_lethal_first_1001` to `tests/determinism_test.gd` and `tests/fixtures/determinism.json`; all 38 digests reproduce byte-identically across back-to-back runs.
 4. **Performance baseline recorded (`1.12`, `1.34`):** `perf.gd -- --map=11 --na=20 --nb=20 --t=60 --gate` runs at **`3.87 ms/tick`** (`8.6x` realtime) and **`42.0 MiB`** static memory (`+1.3 MiB` delta) on Godot `4.7.2-stable`.
-5. **Licensing & notices in place (`1.36`, `2.01–2.03`):** Added `LICENSE` (MIT), `THIRD_PARTY_NOTICES` (Godot MIT, Xiph BSD, Fontsource OFL-1.1, Remotion), and `cinematics/LICENSE_NOTE.md`.
+5. **Licensing, Packaging & Reproducibility (`1.36`, `2.01–2.15`):**
+   - `LICENSE` (MIT), `THIRD_PARTY_NOTICES`, `cinematics/LICENSE_NOTE.md`, `docs/SIGNING.md`, and `.itch.toml` are in place.
+   - `scripts/version.gd` (`Version.WINDOWS := "0.70.0.0"`), `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are synced in 4-part `X.Y.Z.0` format via `tools/sync_version.py`.
+   - `tools/build_release.sh` builds and verifies both Windows (`release/TheViolence.exe`) and Linux (`release/TheViolence.x86_64`) embedded-pack binaries and writes/verifies `release/SHA256SUMS.txt`.
+   - `tools/make_placeholders.py --verify` (123 SVGs + `icon.svg` + `assets/svg/manifest.json`) and `tools/make_sounds.py --verify` (34 WAVs + `assets/sfx/manifest.json`) are wired into CI (`tools/ci/ci.yml`).
 
 ### Concise Owner Checklist (External to Sandbox)
 
@@ -62,7 +66,7 @@ Milestone 1 (`0.50 → 0.60`: **"Make the branch true"**) is complete in-repo:
 
 ### Engine and version skew
 
-- `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are now synced at `0.60` (`0.60.0` for Windows metadata), and `tools/sync_version.py --check` keeps them in lockstep.
+- `scripts/version.gd`, `project.godot`, `export_presets.cfg`, and `tools/patch_rc.py` are now synced at `0.70` (`0.70.0.0` for Windows metadata), and `tools/sync_version.py --check` keeps them in lockstep.
 - The project now declares **4.4 and 4.7** as its engines (`project.godot: config/features`), and 4.7.2 is called primary. The shipped exe is **4.4.1** and predates every fix listed above.
 - The changelog documents a 4.7.2 build **from source** (`tests/godot472_test.gd`, `tools/gd47_check.py`), so 4.7.2 support is real but has never been exercised through the export path.
 

@@ -1,6 +1,6 @@
 # The Violence — Roadmap from `0.50` to `1.0`
 
-**Current state:** `0.60` (M1 Foundation complete)  
+**Current state:** `0.70` (M2 Clean Ship complete)  
 **Target:** `1.00` — commercially shippable on Steam / itch.io as a complete, deterministic, accessible, tested, legally clean single-player tactical-political simulation.
 
 ---
@@ -91,15 +91,15 @@ Every harness under `tests/` exits non-zero (`quit(1)`) on invariant failure or 
 | `2.04` | `[x]` | Remove 38 stray `.RData` / `.py` / `.R` / `.txt` root scratch files | Root directory (completed in PR #17) |
 | `2.05` | `[x]` | Expand `.gitignore` to block `.RData`, `.Rhistory`, `*.pyc`, `__pycache__/`, `.DS_Store`, `Thumbs.db` | `.gitignore` (completed in PR #17) |
 | `2.06` | `[x]` | Remove `Arena Protocols/` directory and clean `README.md` | `README.md` (completed in PR #17) |
-| `2.07` | `[ ]` | Decide whether `release/TheViolence.exe` stays in Git or moves strictly to GitHub Releases | `release/`, `.gitignore` |
-| `2.08` | `[x]` | Add `.gdignore` inside `cinematics/` so Godot never imports `node_modules/` | `cinematics/.gdignore` (completed in PR #17) |
-| `2.09` | `[x]` | Add `export_presets.cfg` exclusion filters (`tests/*`, `tools/*`, `cinematics/*`, `docs/*`, `*.md`, `*.py`, `*.sh`) | `export_presets.cfg` (completed in PR #17) |
-| `2.10` | `[x]` | Fix `tools/sync_version.py` so `file_version` and `product_version` match `X.Y.Z.0` | `tools/sync_version.py` (completed in PR #17) |
-| `2.11` | `[ ]` | Add `Linux/X11` (`x86_64`) export preset to `export_presets.cfg` and `tools/build_release.sh` | `export_presets.cfg`, `tools/build_release.sh` |
-| `2.12` | `[ ]` | Add SHA-256 checksum generation (`SHA256SUMS.txt`) to `tools/build_release.sh` | `tools/build_release.sh` |
-| `2.13` | `[ ]` | Document Windows Authenticode signing & SmartScreen reputation steps | `docs/SIGNING.md` |
-| `2.14` | `[x]` | Pin exact npm dependency versions in `cinematics/package.json` | `cinematics/package.json` (completed in PR #17) |
-| `2.15` | `[ ]` | Add `--verify` mode to `tools/make_placeholders.py` and `tools/make_sounds.py` | `tools/make_placeholders.py`, `tools/make_sounds.py` |
+| `2.07` | `[x]` | Keep `release/*` (except `release/README.md`) git-ignored; distribute binaries via GitHub Releases / itch.io / Steam | `release/`, `.gitignore`, `RELEASE.md` |
+| `2.08` | `[x]` | Add `.gdignore` inside `cinematics/` so Godot never imports `node_modules/` | `cinematics/.gdignore` |
+| `2.09` | `[x]` | Add `export_presets.cfg` exclusion filters (`tests/*`, `tools/*`, `cinematics/*`, `docs/*`, `*.md`, `*.py`, `*.sh`, `*.bat`, `.itch.toml`, `assets/*/manifest.json`) | `export_presets.cfg` |
+| `2.10` | `[x]` | Normalize `Version.WINDOWS`, `file_version`, and `product_version` to 4-part `X.Y.Z.0` (`0.70.0.0`) | `scripts/version.gd`, `tools/sync_version.py`, `export_presets.cfg`, `tools/patch_rc.py` |
+| `2.11` | `[x]` | Configure `Linux` (`x86_64`) and `Windows Desktop` presets in `export_presets.cfg` and create unified `tools/build_release.sh` | `export_presets.cfg`, `tools/build_release.sh`, `tools/build_windows_exe.sh` |
+| `2.12` | `[x]` | Add `release/SHA256SUMS.txt` generation (`--write-sums`) and verification (`--verify-sums`) to `tools/build_release.sh` | `tools/build_release.sh` |
+| `2.13` | `[x]` | Document Windows Authenticode signing, SmartScreen reputation, and storefront manifests (`docs/SIGNING.md`, `.itch.toml`) | `docs/SIGNING.md`, `.itch.toml` |
+| `2.14` | `[x]` | Pin exact npm dependency versions in `cinematics/package.json` | `cinematics/package.json` |
+| `2.15` | `[x]` | Add `--verify` mode to `tools/make_placeholders.py` and `tools/make_sounds.py` (`assets/sfx/manifest.json`) and wire into CI | `tools/make_placeholders.py`, `tools/make_sounds.py`, `assets/sfx/manifest.json`, `tools/ci/ci.yml` |
 
 ---
 

@@ -326,6 +326,7 @@ func show_credits(from: String) -> void:
 		["Built with Claude (Anthropic): code, simulation, art generation and sound.", 13],
 		["", 8],
 		["Engine: Godot Engine 4.7 (MIT licence), godotengine.org.", 13],
+		["Licence: MIT (see LICENSE and THIRD_PARTY_NOTICES).", 13],
 		["Art: every sprite is drawn by tools/make_placeholders.py, in red ink.", 13],
 		["Sound: every effect is synthesised by tools/make_sounds.py. No samples.", 13],
 		["", 8],

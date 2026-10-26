@@ -137,8 +137,14 @@ func _test_version() -> void:
 	var project := FileAccess.get_file_as_string("res://project.godot")
 	var presets := FileAccess.get_file_as_string("res://export_presets.cfg")
 	check(project.contains("config/version=\"%s\"" % Version.VALUE), "project version follows Version.VALUE")
+	check(Version.WINDOWS.split(".").size() == 4, "Version.WINDOWS uses 4-part X.Y.Z.0 format")
 	check(presets.contains("application/file_version=\"%s\"" % Version.WINDOWS), "export file version follows Version.WINDOWS")
 	check(presets.contains("application/product_version=\"%s\"" % Version.WINDOWS), "export product version follows Version.WINDOWS")
+	check(presets.contains("name=\"Windows Desktop\"") and presets.contains("name=\"Linux\""), "export_presets.cfg defines Windows Desktop and Linux presets")
+	check(presets.contains("cinematics/*") and presets.contains("docs/*"), "export_presets.cfg excludes cinematics/* and docs/*")
+	check(FileAccess.file_exists("res://LICENSE") and FileAccess.file_exists("res://THIRD_PARTY_NOTICES"), "root LICENSE and THIRD_PARTY_NOTICES exist")
+	check(FileAccess.file_exists("res://docs/SIGNING.md") and FileAccess.file_exists("res://.itch.toml"), "docs/SIGNING.md and .itch.toml exist")
+	check(FileAccess.file_exists("res://assets/svg/manifest.json") and FileAccess.file_exists("res://assets/sfx/manifest.json"), "SVG and SFX asset manifests exist")
 
 
 class FakeIncident extends RefCounted:
